@@ -3,8 +3,11 @@ import { Alert, StyleSheet, TextInput, TouchableOpacity, View, Text } from 'reac
 import { ScreenShell } from '../components/ScreenShell';
 import { colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
+import { useSession } from '../hooks/useSession';
+import { AuthGateCard } from '../components/AuthGateCard';
 
 export function CreateGroupScreen({ navigation }: any) {
+  const { session, loading: sessionLoading } = useSession();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [visibility, setVisibility] = useState<'private' | 'public'>('private');
@@ -48,6 +51,32 @@ export function CreateGroupScreen({ navigation }: any) {
       setLoading(false);
     }
   };
+
+  if (sessionLoading) {
+    return (
+      <ScreenShell
+        title="Create Group"
+        subtitle="Checking your account…"
+      >
+        <View />
+      </ScreenShell>
+    );
+  }
+
+  if (!session) {
+    return (
+      <ScreenShell
+        title="Create Group"
+        subtitle="Sign in before starting a prayer group."
+      >
+        <AuthGateCard
+          title="Create groups with an account"
+          body="Signing in lets your family, parish, or ministry group be owned by you and managed safely over time."
+          onPress={() => navigation.navigate('Auth')}
+        />
+      </ScreenShell>
+    );
+  }
 
   return (
     <ScreenShell

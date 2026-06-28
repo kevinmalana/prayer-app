@@ -3,10 +3,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSession } from './src/hooks/useSession';
+
 import { ScreenShell } from './src/components/ScreenShell';
 import { SectionCard } from './src/components/SectionCard';
 import { colors } from './src/theme/colors';
+import { TodayScreen } from './src/screens/TodayScreen';
 import { MissionsHubScreen } from './src/screens/MissionsHubScreen';
 import { GroupsHubScreen } from './src/screens/GroupsHubScreen';
 import { ProfileHubScreen } from './src/screens/ProfileHubScreen';
@@ -17,14 +20,13 @@ import { JoinGroupScreen } from './src/screens/JoinGroupScreen';
 import { GroupDetailScreen } from './src/screens/GroupDetailScreen';
 import { PrayerRequestsScreen } from './src/screens/PrayerRequestsScreen';
 import { AuthScreen } from './src/screens/AuthScreen';
-import { useSession } from './src/hooks/useSession';
+import { MissionProvider, useMissions } from './src/context/MissionContext';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
 
 const rosaryHero = require('./assets/rosary-hero.png');
 const candleHero = require('./assets/candle-hero.png');
-const stainedGlass = require('./assets/stained-glass.png');
 
 const theme = {
   ...DefaultTheme,
@@ -38,11 +40,6 @@ const theme = {
   },
 };
 
-const homeMissions = [
-  { title: '1,000 Hail Marys for Peace', progress: '684 / 1,000', pill: '68% complete' },
-  { title: 'Family Rosary This Week', progress: '42 / 70', pill: 'Daily prayer goal' }
-];
-
 const liturgyCards = [
   { label: 'Saint of the Day', value: 'St. Irenaeus' },
   { label: 'Liturgical Season', value: 'Ordinary Time' },
@@ -50,6 +47,11 @@ const liturgyCards = [
 ];
 
 function HomeScreen({ navigation }: any) {
+  const { missions, loading: loadingMissions, error } = useMissions();
+
+  const latestMission = missions[0];
+  const remainingMissions = missions.slice(1);
+
   return (
     <ScreenShell
       title="Pray together with peace, beauty, and daily rhythm."
@@ -66,16 +68,19 @@ function HomeScreen({ navigation }: any) {
           </Text>
 
           <View style={styles.quoteCardDark}>
-            <Text style={styles.quoteLabelLight}>Today’s reflection</Text>
+            <Text style={styles.quoteLabelLight}>Today's reflection</Text>
             <Text style={styles.quoteTextLight}>
-              “The Rosary is the prayer that accompanies me always.”
+              "The Rosary is the prayer that accompanies me always."
             </Text>
             <Text style={styles.quoteAuthorLight}>— St. John Paul II</Text>
           </View>
 
           <View style={styles.heroButtonRow}>
-            <TouchableOpacity style={styles.primaryButtonCream} onPress={() => navigation.navigate('MissionDetail')}>
-              <Text style={styles.primaryButtonCreamText}>Open Goal</Text>
+            <TouchableOpacity
+              style={styles.primaryButtonCream}
+              onPress={() => navigation.navigate('MissionDetail', latestMission ? { missionId: latestMission.id } : undefined)}
+            >
+              <Text style={styles.primaryButtonCreamText}>{latestMission ? 'Open Goal' : 'No goals yet'}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.ghostButtonDark} onPress={() => navigation.navigate('CreateMission')}>
               <Text style={styles.ghostButtonDarkText}>Create</Text>
@@ -110,25 +115,43 @@ function HomeScreen({ navigation }: any) {
           <Text style={styles.sectionLink}>See all</Text>
         </View>
 
-        {homeMissions.map((mission) => (
-          <TouchableOpacity key={mission.title} style={styles.missionCard} onPress={() => navigation.navigate('MissionDetail')}>
-            <View style={styles.missionHeader}>
-              <Text style={styles.missionTitle}>{mission.title}</Text>
-              <View style={styles.missionPill}>
-                <Text style={styles.missionPillText}>{mission.pill}</Text>
-              </View>
-            </View>
-            <Text style={styles.missionMeta}>{mission.progress}</Text>
-            <View style={styles.progressTrack}>
-              <View
-                style={[
-                  styles.progressFill,
-                  { width: mission.title.includes('1,000') ? '68%' : '60%' },
-                ]}
-              />
-            </View>
-          </TouchableOpacity>
-        ))}
+        {loadingMissions ? (
+          <ActivityIndicator color={colors.primary} />
+        ) : error ? (
+          <SectionCard
+            label="Connection issue"
+            title="Could not load prayer goals"
+            support={error}
+          />
+        ) : missions.length === 0 ? (
+          <SectionCard
+            label="Start praying"
+            title="Create your first prayer goal"
+            support="Set a communal target for Hail Marys, decades, or rosaries."
+          />
+        ) : (
+          remainingMissions.map((mission) => {
+            const pct = Math.min(100, Math.round((mission.current_count / Math.max(mission.target_count, 1)) * 100));
+            return (
+              <TouchableOpacity
+                key={mission.id}
+                style={styles.missionCard}
+                onPress={() => navigation.navigate('MissionDetail', { missionId: mission.id })}
+              >
+                <View style={styles.missionHeader}>
+                  <Text style={styles.missionTitle}>{mission.title}</Text>
+                  <View style={styles.missionPill}>
+                    <Text style={styles.missionPillText}>{pct}% complete</Text>
+                  </View>
+                </View>
+                <Text style={styles.missionMeta}>{mission.current_count} / {mission.target_count}</Text>
+                <View style={styles.progressTrack}>
+                  <View style={[styles.progressFill, { width: `${pct}%` }]} />
+                </View>
+              </TouchableOpacity>
+            );
+          })
+        )}
       </View>
 
       <View style={styles.dualRow}>
@@ -145,48 +168,10 @@ function HomeScreen({ navigation }: any) {
   );
 }
 
-function TodayScreen() {
-  return (
-    <ScreenShell
-      title="Today in the Church"
-      subtitle="Daily liturgical context, saints, feasts, and prayer prompts that keep people returning."
-    >
-      <ImageBackground source={stainedGlass} imageStyle={styles.featureImage} style={styles.featureImageWrap}>
-        <LinearGradient colors={['rgba(18,26,20,0.18)', 'rgba(18,26,20,0.58)']} style={styles.featureImageOverlay}>
-          <Text style={styles.featureTitleLight}>Saint of the day</Text>
-          <Text style={styles.featureValueLight}>St. Irenaeus</Text>
-          <Text style={styles.featureBodyLight}>Bishop, martyr, and defender of the faith — presented in a more editorial Catholic style.</Text>
-        </LinearGradient>
-      </ImageBackground>
-
-      <SectionCard
-        label="Feast / Memorial"
-        title="Memorial of St. Irenaeus"
-        support="Patron of unity, doctrine, and fidelity to the apostolic faith."
-      />
-      <SectionCard
-        label="Liturgical color"
-        title="Red"
-        support="A day marked by witness, sacrifice, and love poured out in fidelity."
-      />
-      <SectionCard
-        label="Suggested prayer"
-        title="Offer 10 Hail Marys for unity in the Church"
-        support="A simple daily action that connects liturgical life with communal prayer practice."
-      />
-
-      <ImageBackground source={candleHero} imageStyle={styles.secondaryImage} style={styles.secondaryFeatureWrap}>
-        <LinearGradient colors={['rgba(250,252,249,0.88)', 'rgba(250,252,249,0.96)']} style={styles.secondaryFeatureOverlay}>
-          <Text style={styles.featureTitle}>Coming next</Text>
-          <Text style={styles.featureValue}>Feasts, saints, novenas, and daily Catholic moments</Text>
-          <Text style={styles.featureBody}>This screen is becoming the retention engine of the app.</Text>
-        </LinearGradient>
-      </ImageBackground>
-    </ScreenShell>
-  );
-}
-
 function MainTabs() {
+  const { session } = useSession();
+  const isSignedIn = Boolean(session);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -222,8 +207,20 @@ function MainTabs() {
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Goals" component={MissionsHubScreen} />
       <Tab.Screen name="Groups" component={GroupsHubScreen} />
-      <Tab.Screen name="Today" component={TodayScreen} />
-      <Tab.Screen name="Profile" component={ProfileHubScreen} />
+      <Tab.Screen
+        name="Today"
+        component={TodayScreen}
+        options={{
+          tabBarBadge: isSignedIn ? undefined : '!',
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileHubScreen}
+        options={{
+          tabBarBadge: isSignedIn ? undefined : '!',
+        }}
+      />
     </Tab.Navigator>
   );
 }
@@ -246,9 +243,8 @@ function getTabIcon(routeName: string, focused: boolean): keyof typeof Ionicons.
 }
 
 export default function App() {
-  const { session } = useSession();
-
   return (
+    <MissionProvider>
     <NavigationContainer theme={theme}>
       <RootStack.Navigator>
         <RootStack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
@@ -265,7 +261,7 @@ export default function App() {
         <RootStack.Screen
           name="Auth"
           component={AuthScreen}
-          options={{ title: session ? 'Account' : 'Sign In' }}
+          options={{ title: 'Account' }}
         />
         <RootStack.Screen name="CreateGroup" component={CreateGroupScreen} options={{ title: 'Create Group' }} />
         <RootStack.Screen name="JoinGroup" component={JoinGroupScreen} options={{ title: 'Join Group' }} />
@@ -273,6 +269,7 @@ export default function App() {
         <RootStack.Screen name="PrayerRequests" component={PrayerRequestsScreen} options={{ title: 'Prayer Requests' }} />
       </RootStack.Navigator>
     </NavigationContainer>
+    </MissionProvider>
   );
 }
 
@@ -482,38 +479,6 @@ const styles = StyleSheet.create({
   },
   featureBody: {
     color: '#5F6E63',
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  featureImageWrap: {
-    borderRadius: 28,
-    overflow: 'hidden',
-    minHeight: 280,
-  },
-  featureImage: {
-    borderRadius: 28,
-  },
-  featureImageOverlay: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'flex-end',
-    gap: 8,
-  },
-  featureTitleLight: {
-    color: 'rgba(255,255,255,0.84)',
-    fontSize: 13,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  featureValueLight: {
-    color: '#FFFFFF',
-    fontSize: 28,
-    lineHeight: 34,
-    fontWeight: '800',
-  },
-  featureBodyLight: {
-    color: 'rgba(255,255,255,0.88)',
     fontSize: 15,
     lineHeight: 22,
   },

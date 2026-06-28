@@ -3,8 +3,11 @@ import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import { ScreenShell } from '../components/ScreenShell';
 import { colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
+import { useSession } from '../hooks/useSession';
+import { AuthGateCard } from '../components/AuthGateCard';
 
 export function JoinGroupScreen({ navigation }: any) {
+  const { session, loading: sessionLoading } = useSession();
   const [groupId, setGroupId] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -42,10 +45,30 @@ export function JoinGroupScreen({ navigation }: any) {
     }
   };
 
+  if (sessionLoading) {
+    return (
+      <ScreenShell title="Join Group" subtitle="Checking your account…">
+        <View />
+      </ScreenShell>
+    );
+  }
+
+  if (!session) {
+    return (
+      <ScreenShell title="Join Group" subtitle="Sign in before joining a prayer group.">
+        <AuthGateCard
+          title="Join groups with an account"
+          body="Signing in connects your membership, contributions, and group activity to your profile instead of dropping you into a dead-end form."
+          onPress={() => navigation.navigate('Auth')}
+        />
+      </ScreenShell>
+    );
+  }
+
   return (
-    <ScreenShell title="Join Group" subtitle="Join a prayer group using its ID for now.">
+    <ScreenShell title="Join Group" subtitle="Enter a prayer group ID to join.">
       <View style={styles.card}>
-        <Text style={styles.helpText}>Temporary flow: paste a prayer group ID shared by another user.</Text>
+        <Text style={styles.helpText}>Paste a prayer group ID shared by another member to join their group.</Text>
         <TextInput
           style={styles.input}
           placeholder="Group ID"

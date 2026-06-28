@@ -4,6 +4,8 @@ import { ScreenShell } from '../components/ScreenShell';
 import { SectionCard } from '../components/SectionCard';
 import { colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
+import { useSession } from '../hooks/useSession';
+import { AuthGateCard } from '../components/AuthGateCard';
 
 interface PrayerRequestRow {
   id: string;
@@ -11,9 +13,13 @@ interface PrayerRequestRow {
   body: string;
   is_answered: boolean;
   visibility: 'group' | 'public';
+  group_id: string | null;
 }
 
-export function PrayerRequestsScreen({ navigation }: any) {
+export function PrayerRequestsScreen({ navigation, route }: any) {
+  const groupId = route?.params?.groupId ?? null;
+  const { session, loading: sessionLoading } = useSession();
+
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [items, setItems] = useState<PrayerRequestRow[]>([]);
@@ -21,19 +27,24 @@ export function PrayerRequestsScreen({ navigation }: any) {
   const [saving, setSaving] = useState(false);
 
   const loadRequests = async () => {
-    const { data } = await supabase
+    let query = supabase
       .from('prayer_requests')
-      .select('id,title,body,is_answered,visibility')
+      .select('id,title,body,is_answered,visibility,group_id')
       .order('created_at', { ascending: false })
       .limit(20);
 
+    if (groupId) {
+      query = query.eq('group_id', groupId);
+    }
+
+    const { data } = await query;
     setItems(data ?? []);
     setLoading(false);
   };
 
   useEffect(() => {
     loadRequests();
-  }, []);
+  }, [groupId]);
 
   const handleCreate = async () => {
     if (!title.trim() || !body.trim()) {
@@ -53,12 +64,18 @@ export function PrayerRequestsScreen({ navigation }: any) {
     setSaving(true);
 
     try {
-      const { error } = await supabase.from('prayer_requests').insert({
+      const payload: any = {
         title,
         body,
         user_id: user.id,
         visibility: 'group',
-      });
+      };
+
+      if (groupId) {
+        payload.group_id = groupId;
+      }
+
+      const { error } = await supabase.from('prayer_requests').insert(payload);
 
       if (error) throw error;
 
@@ -72,10 +89,47 @@ export function PrayerRequestsScreen({ navigation }: any) {
     }
   };
 
+  if (sessionLoading) {
+    return (
+      <ScreenShell
+        title={groupId ? 'Group Prayer Requests' : 'Prayer Requests'}
+        subtitle="Checking your account…"
+      >
+        <View />
+      </ScreenShell>
+    );
+  }
+
+  if (!session) {
+    return (
+      <ScreenShell
+        title={groupId ? 'Group Prayer Requests' : 'Prayer Requests'}
+        subtitle={groupId ? 'Sign in before posting requests in this group.' : 'Sign in before posting or managing prayer requests.'}
+      >
+        <AuthGateCard
+          title="Post prayer requests with an account"
+          body={groupId
+            ? 'Signing in keeps your group requests tied to your profile and makes it clear who is asking for prayer.'
+            : 'Signing in lets your requests, answers, and prayer activity stay connected to you over time.'}
+          onPress={() => navigation.navigate('Auth')}
+        />
+
+        {!groupId && items.map((item) => (
+          <SectionCard
+            key={item.id}
+            label={item.is_answered ? 'Answered prayer' : item.visibility === 'public' ? 'Public prayer request' : 'Group prayer request'}
+            title={item.title}
+            support={item.body}
+          />
+        ))}
+      </ScreenShell>
+    );
+  }
+
   return (
     <ScreenShell
-      title="Prayer Requests"
-      subtitle="Post requests, invite prayer, and build the real communal heart of the app."
+      title={groupId ? 'Group Prayer Requests' : 'Prayer Requests'}
+      subtitle={groupId ? 'Post requests for this group and pray together.' : 'Post requests, invite prayer, and build the real communal heart of the app.'}
     >
       <View style={styles.card}>
         <TextInput

@@ -3,8 +3,13 @@ import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import { ScreenShell } from '../components/ScreenShell';
 import { colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
+import { useMissions } from '../context/MissionContext';
+import { useSession } from '../hooks/useSession';
+import { AuthGateCard } from '../components/AuthGateCard';
 
 export function CreateMissionScreen({ navigation }: any) {
+  const { markStale } = useMissions();
+  const { session, loading: sessionLoading } = useSession();
   const [title, setTitle] = useState('');
   const [intention, setIntention] = useState('');
   const [target, setTarget] = useState('1000');
@@ -41,6 +46,7 @@ export function CreateMissionScreen({ navigation }: any) {
       if (error) throw error;
 
       Alert.alert('Prayer Goal created', 'Your prayer goal has been created.');
+      markStale();
       navigation.goBack();
     } catch (error: any) {
       Alert.alert('Create failed', error.message ?? 'Something went wrong');
@@ -48,6 +54,32 @@ export function CreateMissionScreen({ navigation }: any) {
       setLoading(false);
     }
   };
+
+  if (sessionLoading) {
+    return (
+      <ScreenShell
+        title="Create Prayer Goal"
+        subtitle="Checking your account…"
+      >
+        <View />
+      </ScreenShell>
+    );
+  }
+
+  if (!session) {
+    return (
+      <ScreenShell
+        title="Create Prayer Goal"
+        subtitle="Sign in before creating a shared prayer goal."
+      >
+        <AuthGateCard
+          title="Create goals with an account"
+          body="Signing in lets your prayer goals belong to you, sync across devices, and stay connected to groups and contributions."
+          onPress={() => navigation.navigate('Auth')}
+        />
+      </ScreenShell>
+    );
+  }
 
   return (
     <ScreenShell
