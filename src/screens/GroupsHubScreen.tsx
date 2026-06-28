@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScreenShell } from '../components/ScreenShell';
 import { SectionCard } from '../components/SectionCard';
 import { colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
+import { useSession } from '../hooks/useSession';
 
 interface GroupRow {
   id: string;
@@ -11,23 +12,48 @@ interface GroupRow {
   description: string | null;
   type: string;
   visibility: string;
+  owner_id?: string;
 }
 
 export function GroupsHubScreen({ navigation }: any) {
+  const { session } = useSession();
   const [groups, setGroups] = useState<GroupRow[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    supabase
+  const loadGroups = useCallback(async () => {
+    setLoading(true);
+
+    const userId = session?.user?.id;
+
+    const membershipGroupIds = userId
+      ? await supabase
+          .from('group_members')
+          .select('group_id')
+          .eq('user_id', userId)
+      : { data: [] };
+
+    const groupIds = (membershipGroupIds.data ?? []).map((row: any) => row.group_id);
+
+    let query = supabase
       .from('prayer_groups')
-      .select('id,name,description,type,visibility')
+      .select('id,name,description,type,visibility,owner_id')
       .order('created_at', { ascending: false })
-      .limit(20)
-      .then(({ data }) => {
-        setGroups(data ?? []);
-        setLoading(false);
-      });
-  }, []);
+      .limit(20);
+
+    if (userId && groupIds.length > 0) {
+      query = query.in('id', groupIds);
+    } else if (userId) {
+      query = query.eq('owner_id', userId);
+    }
+
+    const { data } = await query;
+    setGroups((data ?? []) as GroupRow[]);
+    setLoading(false);
+  }, [session?.user?.id]);
+
+  useEffect(() => {
+    loadGroups();
+  }, [loadGroups]);
 
   return (
     <ScreenShell
@@ -38,6 +64,12 @@ export function GroupsHubScreen({ navigation }: any) {
         <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('CreateGroup')}>
           <Text style={styles.primaryButtonText}>Create group</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.secondaryButton} onPress={loadGroups}>
+          <Text style={styles.secondaryButtonText}>Refresh</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.actionRow}>
         <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('JoinGroup')}>
           <Text style={styles.secondaryButtonText}>Join group</Text>
         </TouchableOpacity>
