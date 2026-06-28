@@ -84,7 +84,7 @@ function HomeScreen({ navigation }: any) {
           </Text>
 
           <View style={styles.quoteCardDark}>
-            <Text style={styles.quoteLabelLight}>{liturgy.source === 'live' ? 'Today\'s celebration' : 'Fallback reflection'}</Text>
+            <Text style={styles.quoteLabelLight}>Today's celebration</Text>
             <Text style={styles.quoteTextLight}>
               {liturgy.quote ? `"${liturgy.quote}"` : liturgy.description || 'Daily Catholic rhythm grounded in prayer and the Church calendar.'}
             </Text>
@@ -119,12 +119,10 @@ function HomeScreen({ navigation }: any) {
 
       <ImageBackground source={candleHero} imageStyle={styles.secondaryImage} style={styles.secondaryFeatureWrap}>
         <LinearGradient colors={['rgba(250,252,249,0.88)', 'rgba(250,252,249,0.95)']} style={styles.secondaryFeatureOverlay}>
-          <Text style={styles.featureTitle}>Liturgical source</Text>
+          <Text style={styles.featureTitle}>Celebration type</Text>
           <Text style={styles.featureValue}>{liturgy.celebrationType}</Text>
           <Text style={styles.featureBody}>
-            {liturgy.source === 'live'
-              ? 'Daily liturgical information is loading from the connected Catholic calendar source.'
-              : 'Using fallback liturgical information because live data is unavailable right now.'}
+            {liturgy.description || `${liturgy.season} is observed in the Church today.`}
           </Text>
         </LinearGradient>
       </ImageBackground>

@@ -49,7 +49,7 @@ export function getFallbackLiturgicalDay(date = new Date()): LiturgicalDay {
     celebrationName: getWeekdayName(date),
     celebrationType: 'DAY',
     quote: '',
-    description: 'Daily Catholic rhythm with fallback liturgical information while live data loads.',
+    description: 'Catholic daily liturgical information for today.',
     rosaryMystery: getRosaryMystery(date),
     source: 'fallback',
   };
