@@ -20,6 +20,8 @@ export interface PrayerGroup {
   visibility: PrayerGroupVisibility;
   join_mode: PrayerJoinMode;
   owner_id: string;
+  current_intention?: string | null;
+  intention_updated_at?: string | null;
   created_at: string;
 }
 
@@ -45,5 +47,13 @@ export interface PrayerRequest {
   group_id: string | null;
   is_answered: boolean;
   visibility: 'group' | 'public';
+  created_at: string;
+}
+
+export interface GroupMessage {
+  id: string;
+  group_id: string;
+  user_id: string;
+  body: string;
   created_at: string;
 }
