@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
@@ -61,8 +62,8 @@ function HomeScreen() {
         </Text>
 
         <View style={styles.heroImagePlaceholder}>
-          <Text style={styles.heroImageTitle}>Image-led Catholic hero</Text>
-          <Text style={styles.heroImageText}>Rosary • Candlelight • Church interior • Marian art</Text>
+          <Text style={styles.heroImageTitle}>Home hero image slot</Text>
+          <Text style={styles.heroImageText}>Use: assets/rosary-hero.jpg</Text>
         </View>
 
         <View style={styles.heroButtonRow}>
@@ -177,6 +178,10 @@ function TodayScreen() {
         <Text style={styles.featureValue}>St. Irenaeus</Text>
         <Text style={styles.featureBody}>This area is ideal for saint art, feast visuals, and subtle Catholic editorial presentation.</Text>
       </LinearGradient>
+      <View style={styles.heroImagePlaceholderSmall}>
+        <Text style={styles.heroImageTitle}>Today hero image slot</Text>
+        <Text style={styles.heroImageText}>Use: assets/stained-glass.jpg or candle-hero.jpg</Text>
+      </View>
       <View style={styles.softCard}>
         <Text style={styles.cardLabel}>Suggested action</Text>
         <Text style={styles.cardValue}>Offer 10 Hail Marys for unity in the Church</Text>
@@ -200,14 +205,34 @@ function ProfileScreen() {
   );
 }
 
+function getTabIcon(routeName: string, focused: boolean): keyof typeof Ionicons.glyphMap {
+  switch (routeName) {
+    case 'Home':
+      return focused ? 'home' : 'home-outline';
+    case 'Missions':
+      return focused ? 'sparkles' : 'sparkles-outline';
+    case 'Groups':
+      return focused ? 'people' : 'people-outline';
+    case 'Today':
+      return focused ? 'calendar' : 'calendar-outline';
+    case 'Profile':
+      return focused ? 'person' : 'person-outline';
+    default:
+      return 'ellipse-outline';
+  }
+}
+
 export default function App() {
   return (
     <NavigationContainer theme={theme}>
       <Tab.Navigator
-        screenOptions={{
+        screenOptions={({ route }) => ({
           headerShown: false,
           tabBarActiveTintColor: '#567A5A',
           tabBarInactiveTintColor: '#95A296',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={getTabIcon(route.name, focused)} size={size} color={color} />
+          ),
           tabBarStyle: {
             position: 'absolute',
             left: 16,
@@ -229,7 +254,7 @@ export default function App() {
             fontSize: 12,
             fontWeight: '700',
           },
-        }}
+        })}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Missions" component={MissionsScreen} />
@@ -310,6 +335,15 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 18,
     minHeight: 128,
+    justifyContent: 'flex-end',
+    borderWidth: 1,
+    borderColor: '#E1EAE1',
+  },
+  heroImagePlaceholderSmall: {
+    backgroundColor: '#F0F5EF',
+    borderRadius: 24,
+    padding: 18,
+    minHeight: 110,
     justifyContent: 'flex-end',
     borderWidth: 1,
     borderColor: '#E1EAE1',
