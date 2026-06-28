@@ -19,6 +19,17 @@ const theme = {
   },
 };
 
+const homeMissions = [
+  { title: '1,000 Hail Marys for Peace', progress: '684 / 1,000', pill: '68% complete' },
+  { title: 'Family Rosary This Week', progress: '42 / 70', pill: 'Daily mission' },
+];
+
+const liturgyCards = [
+  { label: 'Saint of the Day', value: 'St. Irenaeus' },
+  { label: 'Liturgical Season', value: 'Ordinary Time' },
+  { label: 'Rosary Mystery', value: 'Glorious Mysteries' },
+];
+
 function ScreenShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -36,17 +47,6 @@ function ScreenShell({ title, subtitle, children }: { title: string; subtitle: s
 }
 
 function HomeScreen() {
-  const todayCards = [
-    { label: 'Saint of the Day', value: 'St. Irenaeus' },
-    { label: 'Liturgical Season', value: 'Ordinary Time' },
-    { label: 'Rosary Mystery', value: 'Glorious Mysteries' },
-  ];
-
-  const missions = [
-    { title: '1,000 Hail Marys for Peace', progress: '684 / 1,000', pill: '68% complete' },
-    { title: 'Family Rosary This Week', progress: '42 / 70', pill: 'Daily mission' },
-  ];
-
   return (
     <ScreenShell
       title="Pray together with peace, beauty, and daily rhythm."
@@ -58,12 +58,15 @@ function HomeScreen() {
         </View>
         <Text style={styles.heroTitle}>Feast of the Immaculate Heart of Mary</Text>
         <Text style={styles.heroBody}>
-          A softer, more premium hero ready for rosary imagery, Marian art, or stained-glass textures.
+          Gather your family, parish, or friends around one prayer mission and stay rooted in the life of the Church each day.
         </Text>
 
-        <View style={styles.heroImagePlaceholder}>
-          <Text style={styles.heroImageTitle}>Home hero image slot</Text>
-          <Text style={styles.heroImageText}>Use: assets/rosary-hero.jpg</Text>
+        <View style={styles.quoteCard}>
+          <Text style={styles.quoteLabel}>Today’s reflection</Text>
+          <Text style={styles.quoteText}>
+            “The Rosary is the prayer that accompanies me always.”
+          </Text>
+          <Text style={styles.quoteAuthor}>— St. John Paul II</Text>
         </View>
 
         <View style={styles.heroButtonRow}>
@@ -78,10 +81,10 @@ function HomeScreen() {
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Today</Text>
-          <Text style={styles.sectionLink}>See details</Text>
+          <Text style={styles.sectionTitle}>Catholic today</Text>
+          <Text style={styles.sectionLink}>Open calendar</Text>
         </View>
-        {todayCards.map((card) => (
+        {liturgyCards.map((card) => (
           <View key={card.label} style={styles.softCard}>
             <Text style={styles.cardLabel}>{card.label}</Text>
             <Text style={styles.cardValue}>{card.value}</Text>
@@ -91,11 +94,11 @@ function HomeScreen() {
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Prayer Missions</Text>
+          <Text style={styles.sectionTitle}>Prayer missions</Text>
           <Text style={styles.sectionLink}>See all</Text>
         </View>
 
-        {missions.map((mission) => (
+        {homeMissions.map((mission) => (
           <View key={mission.title} style={styles.missionCard}>
             <View style={styles.missionHeader}>
               <Text style={styles.missionTitle}>{mission.title}</Text>
@@ -119,11 +122,11 @@ function HomeScreen() {
       <View style={styles.dualRow}>
         <View style={[styles.premiumCard, styles.flexCard]}>
           <Text style={styles.premiumTitle}>Prayer requests</Text>
-          <Text style={styles.premiumText}>Receive support, replies, and answered prayer updates.</Text>
+          <Text style={styles.premiumText}>Ask for prayer, receive support, and update others when prayers are answered.</Text>
         </View>
         <View style={[styles.premiumCard, styles.flexCard]}>
           <Text style={styles.premiumTitle}>Groups</Text>
-          <Text style={styles.premiumText}>Family, parish, and youth circles with recurring missions.</Text>
+          <Text style={styles.premiumText}>Family, parish, and youth circles with recurring missions and reminders.</Text>
         </View>
       </View>
     </ScreenShell>
@@ -139,7 +142,7 @@ function MissionsScreen() {
       <LinearGradient colors={['#F2F7F1', '#E6EFE5']} style={styles.featureCard}>
         <Text style={styles.featureTitle}>Featured mission</Text>
         <Text style={styles.featureValue}>10,000 Hail Marys for peace in families</Text>
-        <Text style={styles.featureBody}>Mission cards can become richer with banners, feast-day imagery, and parish identity.</Text>
+        <Text style={styles.featureBody}>Mission cards will become richer with intentions, deadlines, contributors, and milestones.</Text>
       </LinearGradient>
       <View style={styles.actionCard}>
         <Text style={styles.actionTitle}>Create a mission</Text>
@@ -176,15 +179,31 @@ function TodayScreen() {
       <LinearGradient colors={['#F5F8F4', '#EAF2E8']} style={styles.featureCard}>
         <Text style={styles.featureTitle}>Saint of the day</Text>
         <Text style={styles.featureValue}>St. Irenaeus</Text>
-        <Text style={styles.featureBody}>This area is ideal for saint art, feast visuals, and subtle Catholic editorial presentation.</Text>
+        <Text style={styles.featureBody}>Bishop, martyr, and defender of the faith. This screen should feel like a daily Catholic editorial brief, not a generic utility app.</Text>
       </LinearGradient>
-      <View style={styles.heroImagePlaceholderSmall}>
-        <Text style={styles.heroImageTitle}>Today hero image slot</Text>
-        <Text style={styles.heroImageText}>Use: assets/stained-glass.jpg or candle-hero.jpg</Text>
+
+      <View style={styles.softCard}> 
+        <Text style={styles.cardLabel}>Feast / Memorial</Text>
+        <Text style={styles.cardValue}>Memorial of St. Irenaeus</Text>
+        <Text style={styles.cardSupport}>Patron of unity, doctrine, and fidelity to the apostolic faith.</Text>
       </View>
+
       <View style={styles.softCard}>
-        <Text style={styles.cardLabel}>Suggested action</Text>
+        <Text style={styles.cardLabel}>Liturgical color</Text>
+        <Text style={styles.cardValue}>Red</Text>
+        <Text style={styles.cardSupport}>A day marked by witness, sacrifice, and love poured out in fidelity.</Text>
+      </View>
+
+      <View style={styles.softCard}>
+        <Text style={styles.cardLabel}>Suggested prayer</Text>
         <Text style={styles.cardValue}>Offer 10 Hail Marys for unity in the Church</Text>
+        <Text style={styles.cardSupport}>A simple daily action that connects liturgical life with communal prayer practice.</Text>
+      </View>
+
+      <View style={styles.softCard}>
+        <Text style={styles.cardLabel}>Coming next</Text>
+        <Text style={styles.cardValue}>Feasts, saints, novenas, and daily Catholic moments</Text>
+        <Text style={styles.cardSupport}>This screen will become the retention engine of the app.</Text>
       </View>
     </ScreenShell>
   );
@@ -330,34 +349,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
-  heroImagePlaceholder: {
-    backgroundColor: 'rgba(255,255,255,0.65)',
+  quoteCard: {
+    backgroundColor: 'rgba(255,255,255,0.7)',
     borderRadius: 24,
     padding: 18,
-    minHeight: 128,
-    justifyContent: 'flex-end',
     borderWidth: 1,
     borderColor: '#E1EAE1',
+    gap: 6,
   },
-  heroImagePlaceholderSmall: {
-    backgroundColor: '#F0F5EF',
-    borderRadius: 24,
-    padding: 18,
-    minHeight: 110,
-    justifyContent: 'flex-end',
-    borderWidth: 1,
-    borderColor: '#E1EAE1',
+  quoteLabel: {
+    color: '#7A8B7D',
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  heroImageTitle: {
+  quoteText: {
     color: '#2B392E',
     fontSize: 18,
-    fontWeight: '800',
-    marginBottom: 6,
+    lineHeight: 26,
+    fontWeight: '700',
   },
-  heroImageText: {
-    color: '#6A786D',
+  quoteAuthor: {
+    color: '#6D7C70',
     fontSize: 14,
-    lineHeight: 20,
+    fontWeight: '600',
   },
   heroButtonRow: {
     flexDirection: 'row',
@@ -418,6 +434,7 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 6 },
     elevation: 2,
+    gap: 4,
   },
   cardLabel: {
     color: '#8C988E',
@@ -431,6 +448,12 @@ const styles = StyleSheet.create({
     color: '#29362C',
     fontSize: 19,
     fontWeight: '700',
+  },
+  cardSupport: {
+    color: '#6E7A70',
+    fontSize: 14,
+    lineHeight: 20,
+    marginTop: 4,
   },
   missionCard: {
     backgroundColor: '#FFFFFF',
