@@ -31,12 +31,12 @@ export function MissionsHubScreen({ navigation }: any) {
 
   return (
     <ScreenShell
-      title="Prayer missions"
-      subtitle="Create a mission, contribute instantly, and keep the whole community moving together."
+      title="Prayer goals"
+      subtitle="Create a prayer goal, contribute instantly, and keep the whole community moving together."
     >
       <View style={styles.actionRow}>
         <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('CreateMission')}>
-          <Text style={styles.primaryButtonText}>Create mission</Text>
+          <Text style={styles.primaryButtonText}>Create prayer goal</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('MissionDetail')}>
           <Text style={styles.secondaryButtonText}>Open featured</Text>
@@ -47,8 +47,8 @@ export function MissionsHubScreen({ navigation }: any) {
 
       {missions.length === 0 && !loading ? (
         <SectionCard
-          label="No missions yet"
-          title="Create the first prayer mission"
+          label="No prayer goals yet"
+          title="Create the first prayer goal"
           support="Once you create one, it will appear here for the whole app."
         />
       ) : null}

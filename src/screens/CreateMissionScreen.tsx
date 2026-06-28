@@ -12,7 +12,7 @@ export function CreateMissionScreen({ navigation }: any) {
 
   const handleCreate = async () => {
     if (!title.trim()) {
-      Alert.alert('Missing title', 'Please enter a mission title.');
+      Alert.alert('Missing title', 'Please enter a prayer goal title.');
       return;
     }
 
@@ -38,7 +38,7 @@ export function CreateMissionScreen({ navigation }: any) {
 
       if (error) throw error;
 
-      Alert.alert('Mission created', 'Your prayer mission has been created.');
+      Alert.alert('Prayer Goal created', 'Your prayer goal has been created.');
       navigation.goBack();
     } catch (error: any) {
       Alert.alert('Create failed', error.message ?? 'Something went wrong');
@@ -49,13 +49,13 @@ export function CreateMissionScreen({ navigation }: any) {
 
   return (
     <ScreenShell
-      title="Create mission"
+      title="Create Prayer Goal"
       subtitle="Set a prayer goal, attach an intention, and share it with others."
     >
       <View style={styles.card}>
         <TextInput
           style={styles.input}
-          placeholder="Mission title"
+          placeholder="Prayer goal title"
           placeholderTextColor="#94A39A"
           value={title}
           onChangeText={setTitle}
@@ -78,7 +78,7 @@ export function CreateMissionScreen({ navigation }: any) {
         />
 
         <TouchableOpacity style={styles.primaryButton} onPress={handleCreate} disabled={loading}>
-          <Text style={styles.primaryButtonText}>{loading ? 'Creating...' : 'Create mission'}</Text>
+          <Text style={styles.primaryButtonText}>{loading ? 'Creating...' : 'Create prayer goal'}</Text>
         </TouchableOpacity>
       </View>
     </ScreenShell>

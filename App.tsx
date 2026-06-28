@@ -36,7 +36,7 @@ const theme = {
 
 const homeMissions = [
   { title: '1,000 Hail Marys for Peace', progress: '684 / 1,000', pill: '68% complete' },
-  { title: 'Family Rosary This Week', progress: '42 / 70', pill: 'Daily mission' },
+  { title: 'Family Rosary This Week', progress: '42 / 70', pill: 'Daily prayer goal' }
 ];
 
 const liturgyCards = [
@@ -49,7 +49,7 @@ function HomeScreen({ navigation }: any) {
   return (
     <ScreenShell
       title="Pray together with peace, beauty, and daily rhythm."
-      subtitle="A Catholic prayer home built around missions, groups, and the rhythm of the Church."
+      subtitle="A Catholic prayer home built around prayer goals, groups, and the rhythm of the Church."
     >
       <ImageBackground source={rosaryHero} imageStyle={styles.heroImage} style={styles.heroWrap}>
         <LinearGradient colors={['rgba(16,28,18,0.18)', 'rgba(16,28,18,0.62)']} style={styles.heroOverlay}>
@@ -58,7 +58,7 @@ function HomeScreen({ navigation }: any) {
           </View>
           <Text style={styles.heroTitleLight}>Feast of the Immaculate Heart of Mary</Text>
           <Text style={styles.heroBodyLight}>
-            Gather your family, parish, or friends around one prayer mission and stay rooted in the life of the Church each day.
+            Gather your family, parish, or friends around one prayer goal and stay rooted in the life of the Church each day.
           </Text>
 
           <View style={styles.quoteCardDark}>
@@ -71,7 +71,7 @@ function HomeScreen({ navigation }: any) {
 
           <View style={styles.heroButtonRow}>
             <TouchableOpacity style={styles.primaryButtonCream} onPress={() => navigation.navigate('MissionDetail')}>
-              <Text style={styles.primaryButtonCreamText}>Join Mission</Text>
+              <Text style={styles.primaryButtonCreamText}>Open Goal</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.ghostButtonDark} onPress={() => navigation.navigate('CreateMission')}>
               <Text style={styles.ghostButtonDarkText}>Create</Text>
@@ -95,14 +95,14 @@ function HomeScreen({ navigation }: any) {
           <Text style={styles.featureTitle}>Prayer atmosphere</Text>
           <Text style={styles.featureValue}>A calmer, more sacred home experience</Text>
           <Text style={styles.featureBody}>
-            Gentle visual atmosphere, living missions, and devotional cues make the app feel less like a utility and more like a prayer space.
+            Gentle visual atmosphere, living prayer goals, and devotional cues make the app feel less like a utility and more like a prayer space.
           </Text>
         </LinearGradient>
       </ImageBackground>
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Prayer missions</Text>
+          <Text style={styles.sectionTitle}>Prayer goals</Text>
           <Text style={styles.sectionLink}>See all</Text>
         </View>
 
@@ -134,7 +134,7 @@ function HomeScreen({ navigation }: any) {
         />
         <SectionCard
           title="Groups"
-          support="Family, parish, and youth circles with recurring missions and reminders."
+          support="Family, parish, and youth circles with recurring prayer goals and reminders."
         />
       </View>
     </ScreenShell>
@@ -216,7 +216,7 @@ function MainTabs() {
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Missions" component={MissionsHubScreen} />
+      <Tab.Screen name="Goals" component={MissionsHubScreen} />
       <Tab.Screen name="Groups" component={GroupsHubScreen} />
       <Tab.Screen name="Today" component={TodayScreen} />
       <Tab.Screen name="Profile" component={ProfileHubScreen} />
@@ -228,7 +228,7 @@ function getTabIcon(routeName: string, focused: boolean): keyof typeof Ionicons.
   switch (routeName) {
     case 'Home':
       return focused ? 'home' : 'home-outline';
-    case 'Missions':
+    case 'Goals':
       return focused ? 'sparkles' : 'sparkles-outline';
     case 'Groups':
       return focused ? 'people' : 'people-outline';
@@ -251,12 +251,12 @@ export default function App() {
         <RootStack.Screen
           name="MissionDetail"
           component={MissionDetailScreen}
-          options={{ title: 'Mission Detail' }}
+          options={{ title: 'Prayer Goal' }}
         />
         <RootStack.Screen
           name="CreateMission"
           component={CreateMissionScreen}
-          options={{ title: 'Create Mission' }}
+          options={{ title: 'Create Prayer Goal' }}
         />
         <RootStack.Screen
           name="Auth"

@@ -55,7 +55,7 @@ export function AuthScreen() {
   return (
     <ScreenShell
       title="Welcome to One in Prayer"
-      subtitle="Create your account to join prayer missions, Catholic daily life, and community prayer."
+      subtitle="Create your account to join prayer goals, Catholic daily life, and community prayer."
     >
       <View style={styles.card}>
         <Text style={styles.title}>{mode === 'sign_up' ? 'Create account' : 'Sign in'}</Text>

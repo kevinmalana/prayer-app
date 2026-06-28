@@ -15,7 +15,7 @@ export function ProfileHubScreen() {
       <SectionCard
         label="Your impact"
         title="125 prayers contributed"
-        support="Show completed Hail Marys, joined missions, and answered-prayer participation."
+        support="Show completed Hail Marys, joined prayer goals, and answered-prayer participation."
       />
       <SectionCard
         label="Reminders"

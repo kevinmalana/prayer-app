@@ -6,11 +6,11 @@ import { colors } from '../theme/colors';
 export function MissionDetailScreen() {
   return (
     <ScreenShell
-      title="Mission detail"
+      title="Prayer Goal"
       subtitle="This is the core experience: a shared intention, visible progress, and quick contribution."
     >
       <View style={styles.heroCard}>
-        <Text style={styles.heroLabel}>Featured mission</Text>
+        <Text style={styles.heroLabel}>Featured prayer goal</Text>
         <Text style={styles.heroTitle}>1,000 Hail Marys for peace in families</Text>
         <Text style={styles.heroText}>Join a visible communal target and contribute a small prayer count in seconds.</Text>
 
@@ -30,7 +30,7 @@ export function MissionDetailScreen() {
       <SectionCard
         label="Intention"
         title="Pray for peace, healing, and stronger Catholic families"
-        support="Mission intentions should be short, clear, and emotionally strong."
+        support="Prayer intentions should be short, clear, and emotionally strong."
       />
 
       <SectionCard
