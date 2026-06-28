@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { ScreenShell } from '../components/ScreenShell';
 import { SectionCard } from '../components/SectionCard';
 import { colors } from '../theme/colors';
@@ -59,14 +59,9 @@ export function LiturgicalCalendarScreen() {
           key={`${item.date}-${index}`}
           label={formatDateLabel(dates[index])}
           title={item.celebrationName}
-          support={`${item.season} · ${item.rosaryMystery}`}
+          support={`${item.season} · ${item.rosaryMystery}${item.description ? ` · ${item.description}` : ''}`}
         />
       ))}
-
-      <TouchableOpacity style={styles.noteCard}>
-        <Text style={styles.noteTitle}>Year view</Text>
-        <Text style={styles.noteBody}>This is the first pass. Next step is a full yearly calendar browser with month navigation.</Text>
-      </TouchableOpacity>
     </ScreenShell>
   );
 }
@@ -74,23 +69,5 @@ export function LiturgicalCalendarScreen() {
 const styles = StyleSheet.create({
   loader: {
     marginTop: 8,
-  },
-  noteCard: {
-    backgroundColor: colors.card,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: colors.borderSoft,
-    padding: 16,
-    gap: 6,
-  },
-  noteTitle: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '800',
-  },
-  noteBody: {
-    color: colors.textSoft,
-    fontSize: 14,
-    lineHeight: 20,
   },
 });

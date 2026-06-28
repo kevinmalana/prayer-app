@@ -167,7 +167,7 @@ export function ProfileHubScreen({ navigation }: any) {
         <View style={styles.sectionBlock}>
           <Text style={styles.sectionTitle}>Prayer life</Text>
 
-          <TouchableOpacity style={styles.actionRow} onPress={() => navigation.navigate('Goals')}>
+          <TouchableOpacity style={styles.actionRow} onPress={() => navigation.navigate('Main', { screen: 'Goals' })}>
             <View style={styles.actionIconWrap}>
               <Ionicons name="sparkles-outline" size={20} color={colors.primary} />
             </View>
