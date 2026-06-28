@@ -1,9 +1,11 @@
-import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { ImageBackground, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScreenShell } from './src/components/ScreenShell';
+import { SectionCard } from './src/components/SectionCard';
+import { colors } from './src/theme/colors';
 
 const Tab = createBottomTabNavigator();
 
@@ -15,11 +17,11 @@ const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#F7FAF6',
-    card: '#FFFFFF',
-    text: '#223127',
-    border: '#DFE8DF',
-    primary: '#567A5A',
+    background: colors.background,
+    card: colors.card,
+    text: colors.text,
+    border: colors.border,
+    primary: colors.primary,
   },
 };
 
@@ -33,22 +35,6 @@ const liturgyCards = [
   { label: 'Liturgical Season', value: 'Ordinary Time' },
   { label: 'Rosary Mystery', value: 'Glorious Mysteries' },
 ];
-
-function ScreenShell({ title, subtitle, children }: { title: string; subtitle: string; children: React.ReactNode }) {
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.headerBlock}>
-          <Text style={styles.topLabel}>Prayer App</Text>
-          <Text style={styles.topTitle}>{title}</Text>
-          <Text style={styles.topSubtitle}>{subtitle}</Text>
-        </View>
-        {children}
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
 
 function HomeScreen() {
   return (
@@ -91,10 +77,7 @@ function HomeScreen() {
           <Text style={styles.sectionLink}>Open calendar</Text>
         </View>
         {liturgyCards.map((card) => (
-          <View key={card.label} style={styles.softCard}>
-            <Text style={styles.cardLabel}>{card.label}</Text>
-            <Text style={styles.cardValue}>{card.value}</Text>
-          </View>
+          <SectionCard key={card.label} label={card.label} title={card.value} />
         ))}
       </View>
 
@@ -136,14 +119,14 @@ function HomeScreen() {
       </View>
 
       <View style={styles.dualRow}>
-        <View style={[styles.premiumCard, styles.flexCard]}>
-          <Text style={styles.premiumTitle}>Prayer requests</Text>
-          <Text style={styles.premiumText}>Ask for prayer, receive support, and update others when prayers are answered.</Text>
-        </View>
-        <View style={[styles.premiumCard, styles.flexCard]}>
-          <Text style={styles.premiumTitle}>Groups</Text>
-          <Text style={styles.premiumText}>Family, parish, and youth circles with recurring missions and reminders.</Text>
-        </View>
+        <SectionCard
+          title="Prayer requests"
+          support="Ask for prayer, receive support, and update others when prayers are answered."
+        />
+        <SectionCard
+          title="Groups"
+          support="Family, parish, and youth circles with recurring missions and reminders."
+        />
       </View>
     </ScreenShell>
   );
@@ -160,10 +143,10 @@ function MissionsScreen() {
         <Text style={styles.featureValue}>10,000 Hail Marys for peace in families</Text>
         <Text style={styles.featureBody}>Mission cards will become richer with intentions, deadlines, contributors, and milestones.</Text>
       </LinearGradient>
-      <View style={styles.actionCard}>
-        <Text style={styles.actionTitle}>Create a mission</Text>
-        <Text style={styles.actionText}>Start a prayer target for family, parish, school, or a special intention.</Text>
-      </View>
+      <SectionCard
+        title="Create a mission"
+        support="Start a prayer target for family, parish, school, or a special intention."
+      />
     </ScreenShell>
   );
 }
@@ -174,14 +157,8 @@ function GroupsScreen() {
       title="Groups"
       subtitle="Private circles and parish communities where prayer becomes shared and consistent."
     >
-      <View style={styles.softCard}>
-        <Text style={styles.cardLabel}>Family Prayer Circle</Text>
-        <Text style={styles.cardValue}>12 members · 3 active missions</Text>
-      </View>
-      <View style={styles.softCard}>
-        <Text style={styles.cardLabel}>St Mary Parish</Text>
-        <Text style={styles.cardValue}>240 members · Rosary this week</Text>
-      </View>
+      <SectionCard label="Family Prayer Circle" title="12 members · 3 active missions" />
+      <SectionCard label="St Mary Parish" title="240 members · Rosary this week" />
     </ScreenShell>
   );
 }
@@ -200,23 +177,21 @@ function TodayScreen() {
         </LinearGradient>
       </ImageBackground>
 
-      <View style={styles.softCard}> 
-        <Text style={styles.cardLabel}>Feast / Memorial</Text>
-        <Text style={styles.cardValue}>Memorial of St. Irenaeus</Text>
-        <Text style={styles.cardSupport}>Patron of unity, doctrine, and fidelity to the apostolic faith.</Text>
-      </View>
-
-      <View style={styles.softCard}>
-        <Text style={styles.cardLabel}>Liturgical color</Text>
-        <Text style={styles.cardValue}>Red</Text>
-        <Text style={styles.cardSupport}>A day marked by witness, sacrifice, and love poured out in fidelity.</Text>
-      </View>
-
-      <View style={styles.softCard}>
-        <Text style={styles.cardLabel}>Suggested prayer</Text>
-        <Text style={styles.cardValue}>Offer 10 Hail Marys for unity in the Church</Text>
-        <Text style={styles.cardSupport}>A simple daily action that connects liturgical life with communal prayer practice.</Text>
-      </View>
+      <SectionCard
+        label="Feast / Memorial"
+        title="Memorial of St. Irenaeus"
+        support="Patron of unity, doctrine, and fidelity to the apostolic faith."
+      />
+      <SectionCard
+        label="Liturgical color"
+        title="Red"
+        support="A day marked by witness, sacrifice, and love poured out in fidelity."
+      />
+      <SectionCard
+        label="Suggested prayer"
+        title="Offer 10 Hail Marys for unity in the Church"
+        support="A simple daily action that connects liturgical life with communal prayer practice."
+      />
 
       <ImageBackground source={candleHero} imageStyle={styles.secondaryImage} style={styles.secondaryFeatureWrap}>
         <LinearGradient colors={['rgba(250,252,249,0.88)', 'rgba(250,252,249,0.96)']} style={styles.secondaryFeatureOverlay}>
@@ -267,7 +242,7 @@ export default function App() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
-          tabBarActiveTintColor: '#567A5A',
+          tabBarActiveTintColor: colors.primary,
           tabBarInactiveTintColor: '#95A296',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons name={getTabIcon(route.name, focused)} size={size} color={color} />
@@ -306,36 +281,22 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#F7FAF6',
+  section: {
+    gap: 12,
   },
-  content: {
-    padding: 22,
-    paddingBottom: 120,
-    gap: 22,
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  headerBlock: {
-    gap: 8,
-  },
-  topLabel: {
-    color: '#708573',
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 0.7,
-    textTransform: 'uppercase',
-    marginTop: 8,
-  },
-  topTitle: {
-    color: '#223127',
-    fontSize: 31,
-    lineHeight: 38,
+  sectionTitle: {
+    color: colors.text,
+    fontSize: 22,
     fontWeight: '800',
   },
-  topSubtitle: {
-    color: '#617064',
-    fontSize: 15,
-    lineHeight: 22,
+  sectionLink: {
+    color: colors.primary,
+    fontWeight: '700',
   },
   heroWrap: {
     borderRadius: 30,
@@ -432,55 +393,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
-  section: {
-    gap: 12,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    color: '#223127',
-    fontSize: 22,
-    fontWeight: '800',
-  },
-  sectionLink: {
-    color: '#567A5A',
-    fontWeight: '700',
-  },
-  softCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#E3EBE3',
-    shadowColor: '#314332',
-    shadowOpacity: 0.03,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
-    gap: 4,
-  },
-  cardLabel: {
-    color: '#8C988E',
-    fontSize: 13,
-    fontWeight: '700',
-    marginBottom: 6,
-    textTransform: 'uppercase',
-    letterSpacing: 0.4,
-  },
-  cardValue: {
-    color: '#29362C',
-    fontSize: 19,
-    fontWeight: '700',
-  },
-  cardSupport: {
-    color: '#6E7A70',
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 4,
-  },
   secondaryFeatureWrap: {
     borderRadius: 28,
     overflow: 'hidden',
@@ -496,11 +408,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   missionCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: colors.card,
     borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E3EBE3',
+    borderColor: colors.borderSoft,
     gap: 10,
     shadowColor: '#314332',
     shadowOpacity: 0.03,
@@ -522,13 +434,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   missionPill: {
-    backgroundColor: '#EDF4ED',
+    backgroundColor: colors.primarySoft,
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   missionPillText: {
-    color: '#567A5A',
+    color: colors.primary,
     fontSize: 12,
     fontWeight: '700',
   },
@@ -552,50 +464,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
-  premiumCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#E3EBE3',
-    shadowColor: '#314332',
-    shadowOpacity: 0.03,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 2,
-    gap: 8,
-  },
-  flexCard: {
-    flex: 1,
-  },
-  premiumTitle: {
-    color: '#29362C',
-    fontSize: 17,
-    fontWeight: '800',
-  },
-  premiumText: {
-    color: '#667368',
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  actionCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#E3EBE3',
-    gap: 6,
-  },
-  actionTitle: {
-    color: '#2A372E',
-    fontSize: 17,
-    fontWeight: '700',
-  },
-  actionText: {
-    color: '#6F7A72',
-    fontSize: 14,
-    lineHeight: 20,
-  },
   featureCard: {
     borderRadius: 28,
     padding: 20,
@@ -604,14 +472,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   featureTitle: {
-    color: '#567A5A',
+    color: colors.primary,
     fontSize: 13,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
   featureValue: {
-    color: '#223127',
+    color: colors.text,
     fontSize: 24,
     lineHeight: 30,
     fontWeight: '800',
