@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
@@ -9,11 +10,11 @@ const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#F8FBF7',
+    background: '#F7FAF6',
     card: '#FFFFFF',
     text: '#223127',
-    border: '#E4ECE4',
-    primary: '#5E8C61',
+    border: '#DFE8DF',
+    primary: '#567A5A',
   },
 };
 
@@ -22,9 +23,11 @@ function ScreenShell({ title, subtitle, children }: { title: string; subtitle: s
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.topLabel}>Prayer App</Text>
-        <Text style={styles.topTitle}>{title}</Text>
-        <Text style={styles.topSubtitle}>{subtitle}</Text>
+        <View style={styles.headerBlock}>
+          <Text style={styles.topLabel}>Prayer App</Text>
+          <Text style={styles.topTitle}>{title}</Text>
+          <Text style={styles.topSubtitle}>{subtitle}</Text>
+        </View>
         {children}
       </ScrollView>
     </SafeAreaView>
@@ -48,12 +51,19 @@ function HomeScreen() {
       title="Pray together with peace, beauty, and daily rhythm."
       subtitle="A Catholic prayer home built around missions, groups, and the rhythm of the Church."
     >
-      <View style={styles.heroCard}>
-        <Text style={styles.heroKicker}>Today in the Church</Text>
+      <LinearGradient colors={['#F2F7F1', '#E4EFE4']} style={styles.heroCard}>
+        <View style={styles.heroBadge}>
+          <Text style={styles.heroBadgeText}>Today in the Church</Text>
+        </View>
         <Text style={styles.heroTitle}>Feast of the Immaculate Heart of Mary</Text>
         <Text style={styles.heroBody}>
-          Gather your family, parish, or friends around one prayer mission and stay connected to the life of the Church each day.
+          A softer, more premium hero ready for rosary imagery, Marian art, or stained-glass textures.
         </Text>
+
+        <View style={styles.heroImagePlaceholder}>
+          <Text style={styles.heroImageTitle}>Image-led Catholic hero</Text>
+          <Text style={styles.heroImageText}>Rosary • Candlelight • Church interior • Marian art</Text>
+        </View>
 
         <View style={styles.heroButtonRow}>
           <TouchableOpacity style={styles.primaryButton}>
@@ -63,10 +73,13 @@ function HomeScreen() {
             <Text style={styles.ghostButtonText}>Share</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </LinearGradient>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Today</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Today</Text>
+          <Text style={styles.sectionLink}>See details</Text>
+        </View>
         {todayCards.map((card) => (
           <View key={card.label} style={styles.softCard}>
             <Text style={styles.cardLabel}>{card.label}</Text>
@@ -101,6 +114,17 @@ function HomeScreen() {
           </View>
         ))}
       </View>
+
+      <View style={styles.dualRow}>
+        <View style={[styles.premiumCard, styles.flexCard]}>
+          <Text style={styles.premiumTitle}>Prayer requests</Text>
+          <Text style={styles.premiumText}>Receive support, replies, and answered prayer updates.</Text>
+        </View>
+        <View style={[styles.premiumCard, styles.flexCard]}>
+          <Text style={styles.premiumTitle}>Groups</Text>
+          <Text style={styles.premiumText}>Family, parish, and youth circles with recurring missions.</Text>
+        </View>
+      </View>
     </ScreenShell>
   );
 }
@@ -111,11 +135,11 @@ function MissionsScreen() {
       title="Prayer missions"
       subtitle="Join targets, pray with others, and help your group reach spiritual goals."
     >
-      <View style={styles.featureCard}>
+      <LinearGradient colors={['#F2F7F1', '#E6EFE5']} style={styles.featureCard}>
         <Text style={styles.featureTitle}>Featured mission</Text>
         <Text style={styles.featureValue}>10,000 Hail Marys for peace in families</Text>
-        <Text style={styles.featureBody}>Public prayer targets will live here, with filters, progress, and quick join actions.</Text>
-      </View>
+        <Text style={styles.featureBody}>Mission cards can become richer with banners, feast-day imagery, and parish identity.</Text>
+      </LinearGradient>
       <View style={styles.actionCard}>
         <Text style={styles.actionTitle}>Create a mission</Text>
         <Text style={styles.actionText}>Start a prayer target for family, parish, school, or a special intention.</Text>
@@ -148,11 +172,11 @@ function TodayScreen() {
       title="Today in the Church"
       subtitle="Daily liturgical context, saints, feasts, and prayer prompts that keep people returning."
     >
-      <View style={styles.featureCard}>
+      <LinearGradient colors={['#F5F8F4', '#EAF2E8']} style={styles.featureCard}>
         <Text style={styles.featureTitle}>Saint of the day</Text>
         <Text style={styles.featureValue}>St. Irenaeus</Text>
-        <Text style={styles.featureBody}>Bishop, martyr, and defender of the faith. This tab will become the Catholic daily engine of the app.</Text>
-      </View>
+        <Text style={styles.featureBody}>This area is ideal for saint art, feast visuals, and subtle Catholic editorial presentation.</Text>
+      </LinearGradient>
       <View style={styles.softCard}>
         <Text style={styles.cardLabel}>Suggested action</Text>
         <Text style={styles.cardValue}>Offer 10 Hail Marys for unity in the Church</Text>
@@ -167,11 +191,11 @@ function ProfileScreen() {
       title="Profile"
       subtitle="Your prayer rhythm, contribution history, streaks, and future reminders will live here."
     >
-      <View style={styles.featureCard}>
+      <LinearGradient colors={['#F5F8F4', '#E9F1E8']} style={styles.featureCard}>
         <Text style={styles.featureTitle}>Current streak</Text>
         <Text style={styles.featureValue}>6 days</Text>
-        <Text style={styles.featureBody}>A gentle progress area for completed missions, group activity, and personal prayer momentum.</Text>
-      </View>
+        <Text style={styles.featureBody}>A gentler profile area for your contribution history, prayer rhythm, and reminders.</Text>
+      </LinearGradient>
     </ScreenShell>
   );
 }
@@ -182,14 +206,24 @@ export default function App() {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: '#5E8C61',
-          tabBarInactiveTintColor: '#8B998F',
+          tabBarActiveTintColor: '#567A5A',
+          tabBarInactiveTintColor: '#95A296',
           tabBarStyle: {
-            backgroundColor: '#FFFFFF',
-            borderTopColor: '#E4ECE4',
+            position: 'absolute',
+            left: 16,
+            right: 16,
+            bottom: 14,
             height: 72,
             paddingBottom: 10,
             paddingTop: 10,
+            backgroundColor: 'rgba(255,255,255,0.96)',
+            borderTopColor: '#E1E9E1',
+            borderRadius: 24,
+            shadowColor: '#324334',
+            shadowOpacity: 0.08,
+            shadowRadius: 20,
+            shadowOffset: { width: 0, height: 10 },
+            elevation: 12,
           },
           tabBarLabelStyle: {
             fontSize: 12,
@@ -210,18 +244,21 @@ export default function App() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FBF7',
+    backgroundColor: '#F7FAF6',
   },
   content: {
     padding: 22,
-    paddingBottom: 110,
+    paddingBottom: 120,
     gap: 22,
   },
+  headerBlock: {
+    gap: 8,
+  },
   topLabel: {
-    color: '#6F8B72',
+    color: '#708573',
     fontSize: 13,
     fontWeight: '700',
-    letterSpacing: 0.6,
+    letterSpacing: 0.7,
     textTransform: 'uppercase',
     marginTop: 8,
   },
@@ -232,48 +269,71 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   topSubtitle: {
-    color: '#5F6E63',
+    color: '#617064',
     fontSize: 15,
     lineHeight: 22,
-    marginTop: -8,
   },
   heroCard: {
-    backgroundColor: '#EEF5EE',
-    borderRadius: 28,
+    borderRadius: 30,
     padding: 22,
     borderWidth: 1,
-    borderColor: '#DDE9DE',
+    borderColor: '#DCE8DC',
+    gap: 14,
   },
-  heroKicker: {
-    color: '#5E8C61',
-    fontSize: 13,
-    fontWeight: '700',
-    marginBottom: 8,
+  heroBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(86,122,90,0.10)',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  heroBadgeText: {
+    color: '#567A5A',
+    fontSize: 12,
+    fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
   },
   heroTitle: {
     color: '#223127',
-    fontSize: 26,
-    lineHeight: 32,
+    fontSize: 27,
+    lineHeight: 33,
     fontWeight: '800',
-    marginBottom: 10,
   },
   heroBody: {
     color: '#5F6E63',
     fontSize: 16,
     lineHeight: 24,
   },
+  heroImagePlaceholder: {
+    backgroundColor: 'rgba(255,255,255,0.65)',
+    borderRadius: 24,
+    padding: 18,
+    minHeight: 128,
+    justifyContent: 'flex-end',
+    borderWidth: 1,
+    borderColor: '#E1EAE1',
+  },
+  heroImageTitle: {
+    color: '#2B392E',
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 6,
+  },
+  heroImageText: {
+    color: '#6A786D',
+    fontSize: 14,
+    lineHeight: 20,
+  },
   heroButtonRow: {
     flexDirection: 'row',
     gap: 12,
-    marginTop: 18,
   },
   primaryButton: {
     flex: 1,
-    backgroundColor: '#5E8C61',
+    backgroundColor: '#567A5A',
     borderRadius: 18,
-    paddingVertical: 14,
+    paddingVertical: 15,
     alignItems: 'center',
   },
   primaryButtonText: {
@@ -283,16 +343,16 @@ const styles = StyleSheet.create({
   },
   ghostButton: {
     minWidth: 96,
-    backgroundColor: '#F6FAF6',
+    backgroundColor: 'rgba(255,255,255,0.75)',
     borderRadius: 18,
-    paddingVertical: 14,
+    paddingVertical: 15,
     paddingHorizontal: 18,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#DDE9DE',
+    borderColor: '#DDE8DD',
   },
   ghostButtonText: {
-    color: '#4B6A4E',
+    color: '#49664D',
     fontSize: 15,
     fontWeight: '700',
   },
@@ -310,18 +370,23 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   sectionLink: {
-    color: '#5E8C61',
+    color: '#567A5A',
     fontWeight: '700',
   },
   softCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E4ECE4',
+    borderColor: '#E3EBE3',
+    shadowColor: '#314332',
+    shadowOpacity: 0.03,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
   },
   cardLabel: {
-    color: '#8B998F',
+    color: '#8C988E',
     fontSize: 13,
     fontWeight: '700',
     marginBottom: 6,
@@ -329,7 +394,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   cardValue: {
-    color: '#2A372E',
+    color: '#29362C',
     fontSize: 19,
     fontWeight: '700',
   },
@@ -338,8 +403,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E4ECE4',
+    borderColor: '#E3EBE3',
     gap: 10,
+    shadowColor: '#314332',
+    shadowOpacity: 0.03,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
   },
   missionHeader: {
     flexDirection: 'row',
@@ -355,13 +425,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   missionPill: {
-    backgroundColor: '#ECF4EC',
+    backgroundColor: '#EDF4ED',
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
   missionPillText: {
-    color: '#5E8C61',
+    color: '#567A5A',
     fontSize: 12,
     fontWeight: '700',
   },
@@ -381,12 +451,42 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: '#6F9B72',
   },
-  actionCard: {
+  dualRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  premiumCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
+    borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E4ECE4',
+    borderColor: '#E3EBE3',
+    shadowColor: '#314332',
+    shadowOpacity: 0.03,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 2,
+    gap: 8,
+  },
+  flexCard: {
+    flex: 1,
+  },
+  premiumTitle: {
+    color: '#29362C',
+    fontSize: 17,
+    fontWeight: '800',
+  },
+  premiumText: {
+    color: '#667368',
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  actionCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#E3EBE3',
     gap: 6,
   },
   actionTitle: {
@@ -400,15 +500,14 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   featureCard: {
-    backgroundColor: '#EEF5EE',
-    borderRadius: 26,
+    borderRadius: 28,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#DDE9DE',
+    borderColor: '#DDE8DD',
     gap: 8,
   },
   featureTitle: {
-    color: '#5E8C61',
+    color: '#567A5A',
     fontSize: 13,
     fontWeight: '700',
     textTransform: 'uppercase',
