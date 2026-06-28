@@ -9,6 +9,8 @@ interface GroupRow {
   id: string;
   name: string;
   description: string | null;
+  type: string;
+  visibility: string;
 }
 
 export function GroupsHubScreen({ navigation }: any) {
@@ -18,7 +20,7 @@ export function GroupsHubScreen({ navigation }: any) {
   useEffect(() => {
     supabase
       .from('prayer_groups')
-      .select('id,name,description')
+      .select('id,name,description,type,visibility')
       .order('created_at', { ascending: false })
       .limit(20)
       .then(({ data }) => {
@@ -36,28 +38,37 @@ export function GroupsHubScreen({ navigation }: any) {
         <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('CreateGroup')}>
           <Text style={styles.primaryButtonText}>Create group</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('PrayerRequests')}>
-          <Text style={styles.secondaryButtonText}>Prayer requests</Text>
+        <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('JoinGroup')}>
+          <Text style={styles.secondaryButtonText}>Join group</Text>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity style={styles.secondaryFullButton} onPress={() => navigation.navigate('PrayerRequests')}>
+        <Text style={styles.secondaryFullButtonText}>All prayer requests</Text>
+      </TouchableOpacity>
 
       {loading ? <ActivityIndicator color={colors.primary} /> : null}
 
       {groups.length === 0 && !loading ? (
         <SectionCard
           label="No groups yet"
-          title="Create the first prayer group"
-          support="This is where the social layer starts to become real."
+          title="No prayer groups found"
+          support="Create a group or join one when group data is available."
         />
       ) : null}
 
       {groups.map((group) => (
-        <SectionCard
+        <TouchableOpacity
           key={group.id}
-          label="Prayer Group"
-          title={group.name}
-          support={group.description || 'Private prayer space for goals, requests, and support.'}
-        />
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate('GroupDetail', { groupId: group.id })}
+        >
+          <SectionCard
+            label={`${group.type} · ${group.visibility}`}
+            title={group.name}
+            support={group.description || 'Open this group to view its details and activity.'}
+          />
+        </TouchableOpacity>
       ))}
     </ScreenShell>
   );
@@ -90,6 +101,19 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   secondaryButtonText: {
+    color: colors.primary,
+    fontWeight: '800',
+    fontSize: 15,
+  },
+  secondaryFullButton: {
+    backgroundColor: '#EEF4EE',
+    borderRadius: 18,
+    paddingVertical: 15,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  secondaryFullButtonText: {
     color: colors.primary,
     fontWeight: '800',
     fontSize: 15,

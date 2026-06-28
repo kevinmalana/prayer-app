@@ -3,6 +3,22 @@ import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import { ScreenShell } from '../components/ScreenShell';
 import { colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
+import { DEV_BYPASS_ENABLED } from '../lib/devSession';
+
+async function ensureProfile(userId: string, fullName: string | null) {
+  const { data: existing } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (existing) return;
+
+  const { error } = await supabase
+    .from('profiles')
+    .insert({ id: userId, full_name: fullName ?? null });
+  if (error) console.warn('ensureProfile: insert failed', error.message);
+}
 
 export function AuthScreen() {
   const [email, setEmail] = useState('');
@@ -34,16 +50,16 @@ export function AuthScreen() {
         if (error) throw error;
 
         if (data.user) {
-          await supabase.from('profiles').upsert({
-            id: data.user.id,
-            full_name: fullName || null,
-          });
+          await ensureProfile(data.user.id, fullName);
         }
 
         Alert.alert('Check your email', 'Your account was created. Confirm your email to continue if required.');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        if (data.user) {
+          await ensureProfile(data.user.id, null);
+        }
       }
     } catch (error: any) {
       Alert.alert('Auth error', error.message ?? 'Something went wrong');
@@ -59,6 +75,12 @@ export function AuthScreen() {
     >
       <View style={styles.card}>
         <Text style={styles.title}>{mode === 'sign_up' ? 'Create account' : 'Sign in'}</Text>
+
+        {DEV_BYPASS_ENABLED ? (
+          <View style={styles.devNotice}>
+            <Text style={styles.devNoticeText}>Dev bypass is enabled. The app will treat you as signed in for testing.</Text>
+          </View>
+        ) : null}
 
         {mode === 'sign_up' ? (
           <TextInput
@@ -142,5 +164,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: colors.primary,
     fontWeight: '700',
+  },
+  devNotice: {
+    backgroundColor: '#EDF4ED',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  devNoticeText: {
+    color: colors.text,
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '600',
   },
 });

@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ImageBackground, ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
 import { useSession } from './src/hooks/useSession';
 
 import { ScreenShell } from './src/components/ScreenShell';
@@ -21,6 +22,7 @@ import { GroupDetailScreen } from './src/screens/GroupDetailScreen';
 import { PrayerRequestsScreen } from './src/screens/PrayerRequestsScreen';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { MissionProvider, useMissions } from './src/context/MissionContext';
+import { fetchLiturgicalDay, getFallbackLiturgicalDay, LiturgicalDay } from './src/lib/liturgical';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
@@ -40,39 +42,53 @@ const theme = {
   },
 };
 
-const liturgyCards = [
-  { label: 'Saint of the Day', value: 'St. Irenaeus' },
-  { label: 'Liturgical Season', value: 'Ordinary Time' },
-  { label: 'Rosary Mystery', value: 'Glorious Mysteries' },
-];
-
 function HomeScreen({ navigation }: any) {
   const { missions, loading: loadingMissions, error } = useMissions();
+  const [liturgy, setLiturgy] = useState<LiturgicalDay>(getFallbackLiturgicalDay());
+
+  useEffect(() => {
+    let active = true;
+
+    fetchLiturgicalDay().then((day) => {
+      if (active) {
+        setLiturgy(day);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const latestMission = missions[0];
   const remainingMissions = missions.slice(1);
+  const liturgyCards = [
+    { label: 'Celebration', value: liturgy.celebrationName },
+    { label: 'Liturgical Season', value: liturgy.season },
+    { label: 'Rosary Mystery', value: liturgy.rosaryMystery },
+  ];
 
   return (
     <ScreenShell
-      title="Pray together with peace, beauty, and daily rhythm."
-      subtitle="A Catholic prayer home built around prayer goals, groups, and the rhythm of the Church."
+      title={liturgy.celebrationName}
+      subtitle={`${liturgy.season} · ${liturgy.rosaryMystery}`}
     >
       <ImageBackground source={rosaryHero} imageStyle={styles.heroImage} style={styles.heroWrap}>
         <LinearGradient colors={['rgba(16,28,18,0.18)', 'rgba(16,28,18,0.62)']} style={styles.heroOverlay}>
           <View style={styles.heroBadgeDark}>
             <Text style={styles.heroBadgeDarkText}>Today in the Church</Text>
           </View>
-          <Text style={styles.heroTitleLight}>Feast of the Immaculate Heart of Mary</Text>
+          <Text style={styles.heroTitleLight}>{liturgy.celebrationName}</Text>
           <Text style={styles.heroBodyLight}>
-            Gather your family, parish, or friends around one prayer goal and stay rooted in the life of the Church each day.
+            {liturgy.description || `${liturgy.season} observed today in the Church.`}
           </Text>
 
           <View style={styles.quoteCardDark}>
-            <Text style={styles.quoteLabelLight}>Today's reflection</Text>
+            <Text style={styles.quoteLabelLight}>{liturgy.source === 'live' ? 'Today\'s celebration' : 'Fallback reflection'}</Text>
             <Text style={styles.quoteTextLight}>
-              "The Rosary is the prayer that accompanies me always."
+              {liturgy.quote ? `"${liturgy.quote}"` : liturgy.description || 'Daily Catholic rhythm grounded in prayer and the Church calendar.'}
             </Text>
-            <Text style={styles.quoteAuthorLight}>— St. John Paul II</Text>
+            <Text style={styles.quoteAuthorLight}>— {liturgy.celebrationType}</Text>
           </View>
 
           <View style={styles.heroButtonRow}>
@@ -92,7 +108,9 @@ function HomeScreen({ navigation }: any) {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Catholic today</Text>
-          <Text style={styles.sectionLink}>Open calendar</Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Today')}>
+            <Text style={styles.sectionLink}>Open calendar</Text>
+          </TouchableOpacity>
         </View>
         {liturgyCards.map((card) => (
           <SectionCard key={card.label} label={card.label} title={card.value} />
@@ -101,10 +119,12 @@ function HomeScreen({ navigation }: any) {
 
       <ImageBackground source={candleHero} imageStyle={styles.secondaryImage} style={styles.secondaryFeatureWrap}>
         <LinearGradient colors={['rgba(250,252,249,0.88)', 'rgba(250,252,249,0.95)']} style={styles.secondaryFeatureOverlay}>
-          <Text style={styles.featureTitle}>Prayer atmosphere</Text>
-          <Text style={styles.featureValue}>A calmer, more sacred home experience</Text>
+          <Text style={styles.featureTitle}>Liturgical source</Text>
+          <Text style={styles.featureValue}>{liturgy.celebrationType}</Text>
           <Text style={styles.featureBody}>
-            Gentle visual atmosphere, living prayer goals, and devotional cues make the app feel less like a utility and more like a prayer space.
+            {liturgy.source === 'live'
+              ? 'Daily liturgical information is loading from the connected Catholic calendar source.'
+              : 'Using fallback liturgical information because live data is unavailable right now.'}
           </Text>
         </LinearGradient>
       </ImageBackground>
@@ -157,11 +177,11 @@ function HomeScreen({ navigation }: any) {
       <View style={styles.dualRow}>
         <SectionCard
           title="Prayer requests"
-          support="Ask for prayer, receive support, and update others when prayers are answered."
+          support="Open requests shared by the community appear here once they are posted."
         />
         <SectionCard
           title="Groups"
-          support="Family, parish, and youth circles with recurring prayer goals and reminders."
+          support="Real family, parish, and ministry groups appear here from your live data."
         />
       </View>
     </ScreenShell>

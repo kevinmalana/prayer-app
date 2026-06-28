@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { DEV_BYPASS_ENABLED, DEV_SESSION } from '../lib/devSession';
 
 export function useSession() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (DEV_BYPASS_ENABLED) {
+      setSession(DEV_SESSION as Session);
+      setLoading(false);
+      return;
+    }
+
     let active = true;
 
     supabase.auth.getSession().then(({ data }) => {

@@ -7,6 +7,7 @@ import { colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useMissions, SharedMission } from '../context/MissionContext';
 import { useSession } from '../hooks/useSession';
+import { fetchLiturgicalDay, getFallbackLiturgicalDay, LiturgicalDay } from '../lib/liturgical';
 
 interface TodaySummary {
   activeMissions: number;
@@ -19,10 +20,25 @@ export function TodayScreen({ navigation }: any) {
   const { missions } = useMissions();
   const { session, loading: sessionLoading } = useSession();
   const [summary, setSummary] = useState<TodaySummary>({ activeMissions: 0, totalPrayedToday: 0, activeGroups: 0, openRequests: 0 });
+  const [liturgy, setLiturgy] = useState<LiturgicalDay>(getFallbackLiturgicalDay());
   const [loading, setLoading] = useState(true);
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchLiturgicalDay().then((day) => {
+      if (active) {
+        setLiturgy(day);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const loadToday = async () => {
@@ -93,6 +109,12 @@ export function TodayScreen({ navigation }: any) {
       ) : !session ? (
         <>
           <SectionCard
+            label={liturgy.source === 'live' ? 'Today in the Church' : 'Today in the Church · fallback'}
+            title={liturgy.celebrationName}
+            support={`${liturgy.season} · ${liturgy.rosaryMystery}${liturgy.description ? ` · ${liturgy.description}` : ''}`}
+          />
+
+          <SectionCard
             label="Sign in for your daily rhythm"
             title="Your Today tab becomes personal once you're signed in"
             support="Track today's prayers, your groups, and open requests from one place."
@@ -149,6 +171,12 @@ export function TodayScreen({ navigation }: any) {
         </>
       ) : (
         <>
+          <SectionCard
+            label={liturgy.source === 'live' ? 'Today in the Church' : 'Today in the Church · fallback'}
+            title={liturgy.celebrationName}
+            support={`${liturgy.season} · ${liturgy.rosaryMystery}${liturgy.description ? ` · ${liturgy.description}` : ''}`}
+          />
+
           {/* Daily summary stats */}
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
