@@ -23,6 +23,7 @@ import { PrayerRequestsScreen } from './src/screens/PrayerRequestsScreen';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { MissionProvider, useMissions } from './src/context/MissionContext';
 import { fetchLiturgicalDay, getFallbackLiturgicalDay, LiturgicalDay } from './src/lib/liturgical';
+import { LiturgicalCalendarScreen } from './src/screens/LiturgicalCalendarScreen';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
@@ -108,7 +109,7 @@ function HomeScreen({ navigation }: any) {
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Catholic today</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Today')}>
+          <TouchableOpacity onPress={() => navigation.navigate('LiturgicalCalendar')}>
             <Text style={styles.sectionLink}>Open calendar</Text>
           </TouchableOpacity>
         </View>
@@ -285,6 +286,7 @@ export default function App() {
         <RootStack.Screen name="JoinGroup" component={JoinGroupScreen} options={{ title: 'Join Group' }} />
         <RootStack.Screen name="GroupDetail" component={GroupDetailScreen} options={{ title: 'Group Detail' }} />
         <RootStack.Screen name="PrayerRequests" component={PrayerRequestsScreen} options={{ title: 'Prayer Requests' }} />
+        <RootStack.Screen name="LiturgicalCalendar" component={LiturgicalCalendarScreen} options={{ title: 'Liturgical Calendar' }} />
       </RootStack.Navigator>
     </NavigationContainer>
     </MissionProvider>
