@@ -1,4 +1,4 @@
-# Prayer App
+# One in Prayer
 
 Catholic prayer app built with Expo + TypeScript.
 

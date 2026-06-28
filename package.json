@@ -1,5 +1,5 @@
 {
-  "name": "prayer-app",
+  "name": "one-in-prayer",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {

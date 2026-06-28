@@ -17,7 +17,7 @@ export function ScreenShell({
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.headerBlock}>
-          <Text style={styles.topLabel}>Prayer App</Text>
+          <Text style={styles.topLabel}>One in Prayer</Text>
           <Text style={styles.topTitle}>{title}</Text>
           <Text style={styles.topSubtitle}>{subtitle}</Text>
         </View>
