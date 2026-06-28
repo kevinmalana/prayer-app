@@ -1,49 +1,110 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScreenShell } from '../components/ScreenShell';
 import { SectionCard } from '../components/SectionCard';
 import { colors } from '../theme/colors';
+import { supabase } from '../lib/supabase';
 
 export function MissionDetailScreen() {
+  const [goal, setGoal] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const loadGoal = async () => {
+    const { data } = await supabase
+      .from('missions')
+      .select('id,title,intention,target_count,current_count,created_at')
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    setGoal(data?.[0] ?? null);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadGoal();
+  }, []);
+
+  const addContribution = async (count: number) => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const user = sessionData.session?.user;
+
+    if (!user) {
+      Alert.alert('Sign in required', 'Please sign in first.');
+      return;
+    }
+
+    if (!goal) return;
+
+    setSaving(true);
+
+    try {
+      const { error: contributionError } = await supabase.from('mission_contributions').insert({
+        mission_id: goal.id,
+        user_id: user.id,
+        count,
+      });
+
+      if (contributionError) throw contributionError;
+
+      const { error: updateError } = await supabase
+        .from('missions')
+        .update({ current_count: (goal.current_count || 0) + count })
+        .eq('id', goal.id);
+
+      if (updateError) throw updateError;
+
+      await loadGoal();
+    } catch (error: any) {
+      Alert.alert('Contribution failed', error.message ?? 'Something went wrong');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <ScreenShell
       title="Prayer Goal"
       subtitle="This is the core experience: a shared intention, visible progress, and quick contribution."
     >
-      <View style={styles.heroCard}>
-        <Text style={styles.heroLabel}>Featured prayer goal</Text>
-        <Text style={styles.heroTitle}>1,000 Hail Marys for peace in families</Text>
-        <Text style={styles.heroText}>Join a visible communal target and contribute a small prayer count in seconds.</Text>
+      {loading ? <ActivityIndicator color={colors.primary} /> : null}
 
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: '68%' }]} />
-        </View>
-        <Text style={styles.progressMeta}>684 / 1,000 completed</Text>
-      </View>
+      {!loading && !goal ? (
+        <SectionCard label="No prayer goal yet" title="Create a prayer goal first" support="Once one exists, you can contribute and track progress here." />
+      ) : null}
 
-      <View style={styles.quickRow}>
-        <TouchableOpacity style={styles.countButton}><Text style={styles.countButtonText}>+1</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.countButton}><Text style={styles.countButtonText}>+5</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.countButton}><Text style={styles.countButtonText}>+10</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.countButton}><Text style={styles.countButtonText}>+20</Text></TouchableOpacity>
-      </View>
+      {goal ? (
+        <>
+          <View style={styles.heroCard}>
+            <Text style={styles.heroLabel}>Featured prayer goal</Text>
+            <Text style={styles.heroTitle}>{goal.title}</Text>
+            <Text style={styles.heroText}>{goal.intention || 'No intention added yet.'}</Text>
 
-      <SectionCard
-        label="Intention"
-        title="Pray for peace, healing, and stronger Catholic families"
-        support="Prayer intentions should be short, clear, and emotionally strong."
-      />
+            <View style={styles.progressTrack}>
+              <View
+                style={[
+                  styles.progressFill,
+                  { width: `${Math.min(100, Math.round(((goal.current_count || 0) / Math.max(goal.target_count || 1, 1)) * 100))}%` },
+                ]}
+              />
+            </View>
+            <Text style={styles.progressMeta}>{goal.current_count} / {goal.target_count} completed</Text>
+          </View>
 
-      <SectionCard
-        label="Community activity"
-        title="Maria added 10 · Joseph added 5 · Parish group invited 12 more people"
-        support="This area will become a live contribution feed from Supabase."
-      />
+          <View style={styles.quickRow}>
+            <TouchableOpacity style={styles.countButton} onPress={() => addContribution(1)} disabled={saving}><Text style={styles.countButtonText}>+1</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.countButton} onPress={() => addContribution(5)} disabled={saving}><Text style={styles.countButtonText}>+5</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.countButton} onPress={() => addContribution(10)} disabled={saving}><Text style={styles.countButtonText}>+10</Text></TouchableOpacity>
+            <TouchableOpacity style={styles.countButton} onPress={() => addContribution(20)} disabled={saving}><Text style={styles.countButtonText}>+20</Text></TouchableOpacity>
+          </View>
 
-      <SectionCard
-        label="Comments & support"
-        title="Praying for all families in difficulty today"
-        support="This section will hold encouragement, comments, and testimony updates."
-      />
+          <SectionCard
+            label="Contribution"
+            title={saving ? 'Saving contribution...' : 'Quick prayer contribution'}
+            support="Tap a count to add your completed Hail Marys to the shared goal."
+          />
+        </>
+      ) : null}
     </ScreenShell>
   );
 }

@@ -13,6 +13,8 @@ import { ProfileHubScreen } from './src/screens/ProfileHubScreen';
 import { MissionDetailScreen } from './src/screens/MissionDetailScreen';
 import { CreateMissionScreen } from './src/screens/CreateMissionScreen';
 import { CreateGroupScreen } from './src/screens/CreateGroupScreen';
+import { JoinGroupScreen } from './src/screens/JoinGroupScreen';
+import { GroupDetailScreen } from './src/screens/GroupDetailScreen';
 import { PrayerRequestsScreen } from './src/screens/PrayerRequestsScreen';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { useSession } from './src/hooks/useSession';
@@ -266,6 +268,8 @@ export default function App() {
           options={{ title: session ? 'Account' : 'Sign In' }}
         />
         <RootStack.Screen name="CreateGroup" component={CreateGroupScreen} options={{ title: 'Create Group' }} />
+        <RootStack.Screen name="JoinGroup" component={JoinGroupScreen} options={{ title: 'Join Group' }} />
+        <RootStack.Screen name="GroupDetail" component={GroupDetailScreen} options={{ title: 'Group Detail' }} />
         <RootStack.Screen name="PrayerRequests" component={PrayerRequestsScreen} options={{ title: 'Prayer Requests' }} />
       </RootStack.Navigator>
     </NavigationContainer>
