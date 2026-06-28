@@ -13,6 +13,7 @@ import { ProfileHubScreen } from './src/screens/ProfileHubScreen';
 import { MissionDetailScreen } from './src/screens/MissionDetailScreen';
 import { CreateMissionScreen } from './src/screens/CreateMissionScreen';
 import { AuthScreen } from './src/screens/AuthScreen';
+import { useSession } from './src/hooks/useSession';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
@@ -241,13 +242,27 @@ function getTabIcon(routeName: string, focused: boolean): keyof typeof Ionicons.
 }
 
 export default function App() {
+  const { session } = useSession();
+
   return (
     <NavigationContainer theme={theme}>
       <RootStack.Navigator>
         <RootStack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
-        <RootStack.Screen name="MissionDetail" component={MissionDetailScreen} options={{ title: 'Mission Detail' }} />
-        <RootStack.Screen name="CreateMission" component={CreateMissionScreen} options={{ title: 'Create Mission' }} />
-        <RootStack.Screen name="Auth" component={AuthScreen} options={{ title: 'Sign In' }} />
+        <RootStack.Screen
+          name="MissionDetail"
+          component={MissionDetailScreen}
+          options={{ title: 'Mission Detail' }}
+        />
+        <RootStack.Screen
+          name="CreateMission"
+          component={CreateMissionScreen}
+          options={{ title: 'Create Mission' }}
+        />
+        <RootStack.Screen
+          name="Auth"
+          component={AuthScreen}
+          options={{ title: session ? 'Account' : 'Sign In' }}
+        />
       </RootStack.Navigator>
     </NavigationContainer>
   );

@@ -1,40 +1,67 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScreenShell } from '../components/ScreenShell';
 import { SectionCard } from '../components/SectionCard';
 import { colors } from '../theme/colors';
+import { supabase } from '../lib/supabase';
 
-export function MissionsHubScreen() {
+interface MissionRow {
+  id: string;
+  title: string;
+  intention: string | null;
+  target_count: number;
+  current_count: number;
+}
+
+export function MissionsHubScreen({ navigation }: any) {
+  const [missions, setMissions] = useState<MissionRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('missions')
+      .select('id,title,intention,target_count,current_count')
+      .order('created_at', { ascending: false })
+      .limit(10)
+      .then(({ data }) => {
+        setMissions(data ?? []);
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <ScreenShell
       title="Prayer missions"
       subtitle="Create a mission, contribute instantly, and keep the whole community moving together."
     >
       <View style={styles.actionRow}>
-        <TouchableOpacity style={styles.primaryButton}>
+        <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('CreateMission')}>
           <Text style={styles.primaryButtonText}>Create mission</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton}>
+        <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('MissionDetail')}>
           <Text style={styles.secondaryButtonText}>Open featured</Text>
         </TouchableOpacity>
       </View>
 
-      <SectionCard
-        label="Featured mission"
-        title="1,000 Hail Marys for peace in families"
-        support="684 completed · 316 remaining · Deadline Sunday 9PM"
-      />
+      {loading ? <ActivityIndicator color={colors.primary} /> : null}
 
-      <SectionCard
-        label="For parish groups"
-        title="Monthly rosary target"
-        support="Use recurring missions for parishes, youth groups, and family circles."
-      />
+      {missions.length === 0 && !loading ? (
+        <SectionCard
+          label="No missions yet"
+          title="Create the first prayer mission"
+          support="Once you create one, it will appear here for the whole app."
+        />
+      ) : null}
 
-      <SectionCard
-        label="For urgent needs"
-        title="24-hour prayer chain"
-        support="A fast communal response flow for illness, grief, exams, travel, or emergencies."
-      />
+      {missions.map((mission) => (
+        <TouchableOpacity key={mission.id} onPress={() => navigation.navigate('MissionDetail')}>
+          <SectionCard
+            label={`Target ${mission.target_count}`}
+            title={mission.title}
+            support={`${mission.current_count} completed${mission.intention ? ` · ${mission.intention}` : ''}`}
+          />
+        </TouchableOpacity>
+      ))}
     </ScreenShell>
   );
 }

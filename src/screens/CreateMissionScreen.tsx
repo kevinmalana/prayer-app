@@ -2,14 +2,49 @@ import { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { ScreenShell } from '../components/ScreenShell';
 import { colors } from '../theme/colors';
+import { supabase } from '../lib/supabase';
 
-export function CreateMissionScreen() {
+export function CreateMissionScreen({ navigation }: any) {
   const [title, setTitle] = useState('');
   const [intention, setIntention] = useState('');
   const [target, setTarget] = useState('1000');
+  const [loading, setLoading] = useState(false);
 
-  const handleCreate = () => {
-    Alert.alert('Next step', 'This form is ready for Supabase write wiring next.');
+  const handleCreate = async () => {
+    if (!title.trim()) {
+      Alert.alert('Missing title', 'Please enter a mission title.');
+      return;
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const user = sessionData.session?.user;
+
+    if (!user) {
+      Alert.alert('Sign in required', 'Please create an account or sign in first.');
+      navigation.navigate('Auth');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.from('missions').insert({
+        title,
+        intention: intention || null,
+        prayer_type: 'hail_mary',
+        target_count: Number(target) || 1000,
+        creator_id: user.id,
+      });
+
+      if (error) throw error;
+
+      Alert.alert('Mission created', 'Your prayer mission has been created.');
+      navigation.goBack();
+    } catch (error: any) {
+      Alert.alert('Create failed', error.message ?? 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,8 +77,8 @@ export function CreateMissionScreen() {
           keyboardType="number-pad"
         />
 
-        <TouchableOpacity style={styles.primaryButton} onPress={handleCreate}>
-          <Text style={styles.primaryButtonText}>Create mission</Text>
+        <TouchableOpacity style={styles.primaryButton} onPress={handleCreate} disabled={loading}>
+          <Text style={styles.primaryButtonText}>{loading ? 'Creating...' : 'Create mission'}</Text>
         </TouchableOpacity>
       </View>
     </ScreenShell>
