@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ScreenShell } from '../components/ScreenShell';
 import { SectionCard } from '../components/SectionCard';
@@ -30,6 +30,8 @@ export function ProfileHubScreen({ navigation }: any) {
   const [profileLoading, setProfileLoading] = useState(true);
   const [stats, setStats] = useState<ProfileStats>({ contributions: 0, streakDays: 0, groupCount: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
+  const [showReminderForm, setShowReminderForm] = useState(false);
+  const [reminderTime, setReminderTime] = useState('20:30');
 
   const user = session?.user;
 
@@ -46,7 +48,6 @@ export function ProfileHubScreen({ navigation }: any) {
           .eq('user_id', userId),
       ]);
 
-      // Calculate streak from contribution dates
       let streakDays = 0;
       const { data: contributionDates } = await supabase
         .from('mission_contributions')
@@ -56,12 +57,9 @@ export function ProfileHubScreen({ navigation }: any) {
         .limit(60);
 
       if (contributionDates && contributionDates.length > 0) {
-        const daySet = new Set(
-          contributionDates.map((c) => new Date(c.created_at).toISOString().split('T')[0])
-        );
+        const daySet = new Set(contributionDates.map((c) => new Date(c.created_at).toISOString().split('T')[0]));
         const today = new Date();
         let checkDate = new Date(today);
-        // Count consecutive days ending today
         while (daySet.has(checkDate.toISOString().split('T')[0])) {
           streakDays++;
           checkDate.setDate(checkDate.getDate() - 1);
@@ -74,7 +72,7 @@ export function ProfileHubScreen({ navigation }: any) {
         groupCount: groupsRes.count ?? 0,
       });
     } catch {
-      // Leave stats at 0 on any fetch error
+      // keep defaults on fetch error
     } finally {
       setStatsLoading(false);
     }
@@ -99,6 +97,11 @@ export function ProfileHubScreen({ navigation }: any) {
 
     loadStats(user.id);
   }, [user?.id, loadStats]);
+
+  const handleSaveReminder = () => {
+    Alert.alert('Reminder saved', `Daily prayer reminder set for ${reminderTime}. Push delivery is not wired yet, but the reminder flow is now active.`);
+    setShowReminderForm(false);
+  };
 
   const handleSignOut = () => {
     Alert.alert('Sign out', 'Are you sure you want to sign out?', [
@@ -129,32 +132,20 @@ export function ProfileHubScreen({ navigation }: any) {
     );
   }
 
-  // ── Signed-in view ──────────────────────────────────────────────────
   if (session && user) {
     return (
-      <ScreenShell
-        title="Profile"
-        subtitle={`Welcome back, ${displayName}.`}
-      >
-        {/* Avatar + identity block */}
+      <ScreenShell title="Profile" subtitle={`Welcome back, ${displayName}.`}>
         <View style={styles.identityCard}>
           <View style={styles.avatarCircle}>
             <Text style={styles.avatarText}>{initials || displayName[0]?.toUpperCase() || '?'}</Text>
           </View>
           <View style={styles.identityTextBlock}>
-            <Text style={styles.identityName} numberOfLines={1}>
-              {profile?.full_name || displayName}
-            </Text>
-            <Text style={styles.identityEmail} numberOfLines={1}>
-              {user.email}
-            </Text>
-            {memberSince ? (
-              <Text style={styles.identityMember}>Member since {memberSince}</Text>
-            ) : null}
+            <Text style={styles.identityName} numberOfLines={1}>{profile?.full_name || displayName}</Text>
+            <Text style={styles.identityEmail} numberOfLines={1}>{user.email}</Text>
+            {memberSince ? <Text style={styles.identityMember}>Member since {memberSince}</Text> : null}
           </View>
         </View>
 
-        {/* Prayer rhythm overview */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Ionicons name="flame-outline" size={20} color="#6F9B72" />
@@ -173,14 +164,10 @@ export function ProfileHubScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* Quick actions */}
         <View style={styles.sectionBlock}>
           <Text style={styles.sectionTitle}>Prayer life</Text>
 
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={() => navigation.navigate('Goals')}
-          >
+          <TouchableOpacity style={styles.actionRow} onPress={() => navigation.navigate('Goals')}>
             <View style={styles.actionIconWrap}>
               <Ionicons name="sparkles-outline" size={20} color={colors.primary} />
             </View>
@@ -191,10 +178,7 @@ export function ProfileHubScreen({ navigation }: any) {
             <Ionicons name="chevron-forward" size={18} color="#B8C4B9" />
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={() => navigation.navigate('PrayerRequests')}
-          >
+          <TouchableOpacity style={styles.actionRow} onPress={() => navigation.navigate('PrayerRequests')}>
             <View style={styles.actionIconWrap}>
               <Ionicons name="heart-outline" size={20} color={colors.primary} />
             </View>
@@ -206,25 +190,37 @@ export function ProfileHubScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
 
-        {/* Settings & account */}
         <View style={styles.sectionBlock}>
           <Text style={styles.sectionTitle}>Settings</Text>
 
-          <View style={styles.actionRow}>
+          <TouchableOpacity style={styles.actionRow} onPress={() => setShowReminderForm(!showReminderForm)}>
             <View style={styles.actionIconWrap}>
               <Ionicons name="notifications-outline" size={20} color={colors.primary} />
             </View>
             <View style={styles.actionTextBlock}>
               <Text style={styles.actionTitle}>Reminders</Text>
-              <Text style={styles.actionSupport}>Reminder settings are not configured yet.</Text>
+              <Text style={styles.actionSupport}>Daily prayer reminder at {reminderTime}</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color="#B8C4B9" />
-          </View>
+          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={() => navigation.navigate('Auth')}
-          >
+          {showReminderForm ? (
+            <View style={styles.reminderCard}>
+              <Text style={styles.reminderTitle}>Daily prayer reminder</Text>
+              <TextInput
+                style={styles.reminderInput}
+                value={reminderTime}
+                onChangeText={setReminderTime}
+                placeholder="20:30"
+                placeholderTextColor="#94A39A"
+              />
+              <TouchableOpacity style={styles.reminderButton} onPress={handleSaveReminder}>
+                <Text style={styles.reminderButtonText}>Save reminder</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+
+          <TouchableOpacity style={styles.actionRow} onPress={() => navigation.navigate('Auth')}>
             <View style={styles.actionIconWrap}>
               <Ionicons name="person-circle-outline" size={20} color={colors.primary} />
             </View>
@@ -236,7 +232,6 @@ export function ProfileHubScreen({ navigation }: any) {
           </TouchableOpacity>
         </View>
 
-        {/* Sign out */}
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
           <Ionicons name="log-out-outline" size={18} color="#C44" />
           <Text style={styles.signOutText}>Sign out</Text>
@@ -245,22 +240,15 @@ export function ProfileHubScreen({ navigation }: any) {
     );
   }
 
-  // ── Signed-out view ─────────────────────────────────────────────────
   return (
-    <ScreenShell
-      title="Profile"
-      subtitle="Sign in to track your prayer rhythm, join groups, and build a consistent prayer life."
-    >
+    <ScreenShell title="Profile" subtitle="Sign in to track your prayer rhythm, join groups, and build a consistent prayer life.">
       <View style={styles.signedOutCard}>
         <Ionicons name="person-circle-outline" size={56} color="#AAB8AC" style={styles.signedOutIcon} />
         <Text style={styles.signedOutTitle}>You're not signed in</Text>
         <Text style={styles.signedOutBody}>
           Creating an account lets you track your prayer goals, join groups, post prayer requests, and build a daily rhythm alongside the Church calendar.
         </Text>
-        <TouchableOpacity
-          style={styles.signedOutButton}
-          onPress={() => navigation.navigate('Auth')}
-        >
+        <TouchableOpacity style={styles.signedOutButton} onPress={() => navigation.navigate('Auth')}>
           <Text style={styles.signedOutButtonText}>Sign in or create account</Text>
         </TouchableOpacity>
       </View>
@@ -278,52 +266,46 @@ const styles = StyleSheet.create({
   spinner: {
     marginTop: 32,
   },
-
-  // ── Signed-in styles ──
   identityCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
     backgroundColor: colors.card,
     borderRadius: 24,
     padding: 18,
     borderWidth: 1,
     borderColor: colors.borderSoft,
+    flexDirection: 'row',
+    gap: 14,
+    alignItems: 'center',
   },
   avatarCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#EDF4ED',
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: '#E8F0E8',
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarText: {
     color: colors.primary,
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '800',
   },
   identityTextBlock: {
     flex: 1,
-    gap: 3,
+    gap: 4,
   },
   identityName: {
     color: '#2A372E',
-    fontSize: 19,
+    fontSize: 21,
     fontWeight: '800',
-    lineHeight: 24,
   },
   identityEmail: {
-    color: '#6E7A70',
+    color: '#607065',
     fontSize: 14,
   },
   identityMember: {
-    color: '#95A296',
+    color: '#8C988E',
     fontSize: 13,
-    marginTop: 2,
   },
-
-  // Stats
   statsRow: {
     flexDirection: 'row',
     gap: 10,
@@ -331,29 +313,27 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     backgroundColor: colors.card,
-    borderRadius: 18,
-    padding: 14,
+    borderRadius: 20,
+    padding: 16,
     borderWidth: 1,
     borderColor: colors.borderSoft,
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
   },
   statValue: {
     color: '#2A372E',
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '800',
   },
   statLabel: {
     color: '#8C988E',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    letterSpacing: 0.4,
   },
-
-  // Section blocks
   sectionBlock: {
-    gap: 10,
+    gap: 12,
   },
   sectionTitle: {
     color: '#6E7A70',
@@ -361,18 +341,14 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 2,
   },
-
-  // Action rows
   actionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
     backgroundColor: colors.card,
-    borderRadius: 18,
-    padding: 14,
-    paddingRight: 10,
+    borderRadius: 20,
+    padding: 16,
     borderWidth: 1,
     borderColor: colors.borderSoft,
   },
@@ -398,8 +374,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
   },
-
-  // Sign out
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -416,8 +390,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
-
-  // ── Signed-out styles ──
   signedOutCard: {
     backgroundColor: colors.card,
     borderRadius: 24,
@@ -449,6 +421,40 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   signedOutButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  reminderCard: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.borderSoft,
+    padding: 16,
+    gap: 12,
+  },
+  reminderTitle: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  reminderInput: {
+    backgroundColor: '#F5F8F4',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    color: colors.text,
+    fontSize: 16,
+  },
+  reminderButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    paddingVertical: 13,
+    alignItems: 'center',
+  },
+  reminderButtonText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '800',
