@@ -1,36 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScreenShell } from '../components/ScreenShell';
 import { SectionCard } from '../components/SectionCard';
 import { colors } from '../theme/colors';
 import { supabase } from '../lib/supabase';
+import { useMissions, SharedMission } from '../context/MissionContext';
 
-export function MissionDetailScreen() {
-  const [goal, setGoal] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+export function MissionDetailScreen({ route, navigation }: any) {
+  const missionId = route?.params?.missionId;
+  const { missions, loading, markStale } = useMissions();
   const [saving, setSaving] = useState(false);
 
-  const loadGoal = async () => {
-    const { data } = await supabase
-      .from('missions')
-      .select('id,title,intention,target_count,current_count,created_at')
-      .order('created_at', { ascending: false })
-      .limit(1);
+  const goal: SharedMission | null = missionId
+    ? (missions.find((m) => m.id === missionId) ?? null)
+    : (missions.length > 0 ? missions[0] : null);
 
-    setGoal(data?.[0] ?? null);
-    setLoading(false);
-  };
+  const progressPct = useMemo(() => {
+    if (!goal) return 0;
+    return Math.min(100, Math.round(((goal.current_count || 0) / Math.max(goal.target_count || 1, 1)) * 100));
+  }, [goal]);
 
-  useEffect(() => {
-    loadGoal();
-  }, []);
-
-  const addContribution = async (count: number) => {
+  const addContribution = useCallback(async (count: number) => {
     const { data: sessionData } = await supabase.auth.getSession();
     const user = sessionData.session?.user;
 
     if (!user) {
       Alert.alert('Sign in required', 'Please sign in first.');
+      navigation.navigate('Auth');
       return;
     }
 
@@ -54,54 +50,59 @@ export function MissionDetailScreen() {
 
       if (updateError) throw updateError;
 
-      await loadGoal();
+      markStale();
+      Alert.alert('Prayer added', `${count} prayer${count === 1 ? '' : 's'} added to this goal.`);
     } catch (error: any) {
       Alert.alert('Contribution failed', error.message ?? 'Something went wrong');
     } finally {
       setSaving(false);
     }
-  };
+  }, [goal, markStale, navigation]);
 
   return (
     <ScreenShell
-      title="Prayer Goal"
-      subtitle="This is the core experience: a shared intention, visible progress, and quick contribution."
+      title={goal?.title || 'Prayer Goal'}
+      subtitle={goal ? 'Shared intention, visible progress, and quick contribution.' : 'Open a prayer goal to see its progress and contribute.'}
     >
       {loading ? <ActivityIndicator color={colors.primary} /> : null}
 
       {!loading && !goal ? (
-        <SectionCard label="No prayer goal yet" title="Create a prayer goal first" support="Once one exists, you can contribute and track progress here." />
+        <SectionCard
+          label="No prayer goal yet"
+          title="Create a prayer goal first"
+          support="Once one exists, you can contribute and track progress here."
+        >
+          <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('CreateMission')}>
+            <Text style={styles.primaryButtonText}>Create prayer goal</Text>
+          </TouchableOpacity>
+        </SectionCard>
       ) : null}
 
       {goal ? (
         <>
           <View style={styles.heroCard}>
-            <Text style={styles.heroLabel}>Featured prayer goal</Text>
+            <Text style={styles.heroLabel}>Prayer goal</Text>
             <Text style={styles.heroTitle}>{goal.title}</Text>
             <Text style={styles.heroText}>{goal.intention || 'No intention added yet.'}</Text>
 
             <View style={styles.progressTrack}>
-              <View
-                style={[
-                  styles.progressFill,
-                  { width: `${Math.min(100, Math.round(((goal.current_count || 0) / Math.max(goal.target_count || 1, 1)) * 100))}%` },
-                ]}
-              />
+              <View style={[styles.progressFill, { width: `${progressPct}%` }]} />
             </View>
-            <Text style={styles.progressMeta}>{goal.current_count} / {goal.target_count} completed</Text>
+            <Text style={styles.progressMeta}>{goal.current_count} / {goal.target_count} completed · {progressPct}%</Text>
           </View>
 
           <View style={styles.quickRow}>
-            <TouchableOpacity style={styles.countButton} onPress={() => addContribution(1)} disabled={saving}><Text style={styles.countButtonText}>+1</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.countButton} onPress={() => addContribution(5)} disabled={saving}><Text style={styles.countButtonText}>+5</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.countButton} onPress={() => addContribution(10)} disabled={saving}><Text style={styles.countButtonText}>+10</Text></TouchableOpacity>
-            <TouchableOpacity style={styles.countButton} onPress={() => addContribution(20)} disabled={saving}><Text style={styles.countButtonText}>+20</Text></TouchableOpacity>
+            {[1, 5, 10, 20].map((count) => (
+              <TouchableOpacity key={count} style={styles.countButton} onPress={() => addContribution(count)} disabled={saving}>
+                <Text style={styles.countButtonText}>+{count}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <SectionCard
             label="Contribution"
             title={saving ? 'Saving contribution...' : 'Quick prayer contribution'}
-            support="Tap a count to add your completed Hail Marys to the shared goal."
+            support="Tap a count to add your completed prayers to the shared goal."
           />
         </>
       ) : null}
@@ -167,5 +168,17 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '800',
     fontSize: 15,
+  },
+  primaryButton: {
+    marginTop: 12,
+    backgroundColor: colors.primary,
+    borderRadius: 18,
+    paddingVertical: 15,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
   },
 });
