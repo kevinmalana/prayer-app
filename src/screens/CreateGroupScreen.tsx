@@ -31,7 +31,7 @@ export function CreateGroupScreen({ navigation }: any) {
     setLoading(true);
 
     try {
-      const { error } = await supabase.from('prayer_groups').insert({
+      const { data: groupData, error } = await supabase.from('prayer_groups').insert({
         name,
         description: description || null,
         type: 'family',
@@ -39,12 +39,24 @@ export function CreateGroupScreen({ navigation }: any) {
         visibility,
         join_mode: visibility === 'private' ? 'invite' : 'open',
         owner_id: user.id,
-      });
+      }).select('id').single();
 
       if (error) throw error;
 
+      if (groupData?.id) {
+        const { error: membershipError } = await supabase.from('group_members').insert({
+          group_id: groupData.id,
+          user_id: user.id,
+          role: 'owner',
+        });
+
+        if (membershipError && !membershipError.message?.toLowerCase().includes('duplicate')) {
+          throw membershipError;
+        }
+      }
+
       Alert.alert('Group created', 'Your prayer group has been created.');
-      navigation.goBack();
+      navigation.navigate('GroupDetail', { groupId: groupData?.id });
     } catch (error: any) {
       Alert.alert('Create failed', error.message ?? 'Something went wrong');
     } finally {
