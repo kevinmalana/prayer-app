@@ -7,9 +7,10 @@ import { useMissions } from '../context/MissionContext';
 import { useSession } from '../hooks/useSession';
 import { AuthGateCard } from '../components/AuthGateCard';
 
-export function CreateMissionScreen({ navigation }: any) {
+export function CreateMissionScreen({ navigation, route }: any) {
   const { markStale } = useMissions();
   const { session, loading: sessionLoading } = useSession();
+  const groupId = route?.params?.groupId ?? null;
   const [title, setTitle] = useState('');
   const [intention, setIntention] = useState('');
   const [target, setTarget] = useState('1000');
@@ -40,6 +41,7 @@ export function CreateMissionScreen({ navigation }: any) {
         prayer_type: goalUnit === 'rosary' ? 'rosary' : 'hail_mary',
         goal_unit: goalUnit,
         target_count: Number(target) || 1000,
+        group_id: groupId,
         creator_id: user.id,
       });
 
@@ -84,7 +86,7 @@ export function CreateMissionScreen({ navigation }: any) {
   return (
     <ScreenShell
       title="Create Prayer Goal"
-      subtitle="Set a prayer goal, attach an intention, and share it with others."
+      subtitle={groupId ? 'Create a prayer goal for this group.' : 'Set a prayer goal, attach an intention, and share it with others.'}
     >
       <View style={styles.card}>
         <TextInput
