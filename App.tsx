@@ -1,13 +1,21 @@
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScreenShell } from './src/components/ScreenShell';
 import { SectionCard } from './src/components/SectionCard';
 import { colors } from './src/theme/colors';
+import { MissionsHubScreen } from './src/screens/MissionsHubScreen';
+import { GroupsHubScreen } from './src/screens/GroupsHubScreen';
+import { ProfileHubScreen } from './src/screens/ProfileHubScreen';
+import { MissionDetailScreen } from './src/screens/MissionDetailScreen';
+import { CreateMissionScreen } from './src/screens/CreateMissionScreen';
+import { AuthScreen } from './src/screens/AuthScreen';
 
 const Tab = createBottomTabNavigator();
+const RootStack = createNativeStackNavigator();
 
 const rosaryHero = require('./assets/rosary-hero.png');
 const candleHero = require('./assets/candle-hero.png');
@@ -36,7 +44,7 @@ const liturgyCards = [
   { label: 'Rosary Mystery', value: 'Glorious Mysteries' },
 ];
 
-function HomeScreen() {
+function HomeScreen({ navigation }: any) {
   return (
     <ScreenShell
       title="Pray together with peace, beauty, and daily rhythm."
@@ -61,11 +69,11 @@ function HomeScreen() {
           </View>
 
           <View style={styles.heroButtonRow}>
-            <TouchableOpacity style={styles.primaryButtonCream}>
+            <TouchableOpacity style={styles.primaryButtonCream} onPress={() => navigation.navigate('MissionDetail')}>
               <Text style={styles.primaryButtonCreamText}>Join Mission</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.ghostButtonDark}>
-              <Text style={styles.ghostButtonDarkText}>Share</Text>
+            <TouchableOpacity style={styles.ghostButtonDark} onPress={() => navigation.navigate('CreateMission')}>
+              <Text style={styles.ghostButtonDarkText}>Create</Text>
             </TouchableOpacity>
           </View>
         </LinearGradient>
@@ -98,7 +106,7 @@ function HomeScreen() {
         </View>
 
         {homeMissions.map((mission) => (
-          <View key={mission.title} style={styles.missionCard}>
+          <TouchableOpacity key={mission.title} style={styles.missionCard} onPress={() => navigation.navigate('MissionDetail')}>
             <View style={styles.missionHeader}>
               <Text style={styles.missionTitle}>{mission.title}</Text>
               <View style={styles.missionPill}>
@@ -114,7 +122,7 @@ function HomeScreen() {
                 ]}
               />
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
 
@@ -128,37 +136,6 @@ function HomeScreen() {
           support="Family, parish, and youth circles with recurring missions and reminders."
         />
       </View>
-    </ScreenShell>
-  );
-}
-
-function MissionsScreen() {
-  return (
-    <ScreenShell
-      title="Prayer missions"
-      subtitle="Join targets, pray with others, and help your group reach spiritual goals."
-    >
-      <LinearGradient colors={['#F2F7F1', '#E6EFE5']} style={styles.featureCard}>
-        <Text style={styles.featureTitle}>Featured mission</Text>
-        <Text style={styles.featureValue}>10,000 Hail Marys for peace in families</Text>
-        <Text style={styles.featureBody}>Mission cards will become richer with intentions, deadlines, contributors, and milestones.</Text>
-      </LinearGradient>
-      <SectionCard
-        title="Create a mission"
-        support="Start a prayer target for family, parish, school, or a special intention."
-      />
-    </ScreenShell>
-  );
-}
-
-function GroupsScreen() {
-  return (
-    <ScreenShell
-      title="Groups"
-      subtitle="Private circles and parish communities where prayer becomes shared and consistent."
-    >
-      <SectionCard label="Family Prayer Circle" title="12 members · 3 active missions" />
-      <SectionCard label="St Mary Parish" title="240 members · Rosary this week" />
     </ScreenShell>
   );
 }
@@ -204,18 +181,45 @@ function TodayScreen() {
   );
 }
 
-function ProfileScreen() {
+function MainTabs() {
   return (
-    <ScreenShell
-      title="Profile"
-      subtitle="Your prayer rhythm, contribution history, streaks, and future reminders will live here."
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: '#95A296',
+        tabBarIcon: ({ color, size, focused }) => (
+          <Ionicons name={getTabIcon(route.name, focused)} size={size} color={color} />
+        ),
+        tabBarStyle: {
+          position: 'absolute',
+          left: 16,
+          right: 16,
+          bottom: 14,
+          height: 72,
+          paddingBottom: 10,
+          paddingTop: 10,
+          backgroundColor: 'rgba(255,255,255,0.96)',
+          borderTopColor: '#E1E9E1',
+          borderRadius: 24,
+          shadowColor: '#324334',
+          shadowOpacity: 0.08,
+          shadowRadius: 20,
+          shadowOffset: { width: 0, height: 10 },
+          elevation: 12,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '700',
+        },
+      })}
     >
-      <LinearGradient colors={['#F5F8F4', '#E9F1E8']} style={styles.featureCard}>
-        <Text style={styles.featureTitle}>Current streak</Text>
-        <Text style={styles.featureValue}>6 days</Text>
-        <Text style={styles.featureBody}>A gentler profile area for your contribution history, prayer rhythm, and reminders.</Text>
-      </LinearGradient>
-    </ScreenShell>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Missions" component={MissionsHubScreen} />
+      <Tab.Screen name="Groups" component={GroupsHubScreen} />
+      <Tab.Screen name="Today" component={TodayScreen} />
+      <Tab.Screen name="Profile" component={ProfileHubScreen} />
+    </Tab.Navigator>
   );
 }
 
@@ -239,43 +243,12 @@ function getTabIcon(routeName: string, focused: boolean): keyof typeof Ionicons.
 export default function App() {
   return (
     <NavigationContainer theme={theme}>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarActiveTintColor: colors.primary,
-          tabBarInactiveTintColor: '#95A296',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons name={getTabIcon(route.name, focused)} size={size} color={color} />
-          ),
-          tabBarStyle: {
-            position: 'absolute',
-            left: 16,
-            right: 16,
-            bottom: 14,
-            height: 72,
-            paddingBottom: 10,
-            paddingTop: 10,
-            backgroundColor: 'rgba(255,255,255,0.96)',
-            borderTopColor: '#E1E9E1',
-            borderRadius: 24,
-            shadowColor: '#324334',
-            shadowOpacity: 0.08,
-            shadowRadius: 20,
-            shadowOffset: { width: 0, height: 10 },
-            elevation: 12,
-          },
-          tabBarLabelStyle: {
-            fontSize: 12,
-            fontWeight: '700',
-          },
-        })}
-      >
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Missions" component={MissionsScreen} />
-        <Tab.Screen name="Groups" component={GroupsScreen} />
-        <Tab.Screen name="Today" component={TodayScreen} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
-      </Tab.Navigator>
+      <RootStack.Navigator>
+        <RootStack.Screen name="Main" component={MainTabs} options={{ headerShown: false }} />
+        <RootStack.Screen name="MissionDetail" component={MissionDetailScreen} options={{ title: 'Mission Detail' }} />
+        <RootStack.Screen name="CreateMission" component={CreateMissionScreen} options={{ title: 'Create Mission' }} />
+        <RootStack.Screen name="Auth" component={AuthScreen} options={{ title: 'Sign In' }} />
+      </RootStack.Navigator>
     </NavigationContainer>
   );
 }
