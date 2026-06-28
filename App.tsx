@@ -3,9 +3,13 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Tab = createBottomTabNavigator();
+
+const rosaryHero = require('./assets/rosary-hero.png');
+const candleHero = require('./assets/candle-hero.png');
+const stainedGlass = require('./assets/stained-glass.png');
 
 const theme = {
   ...DefaultTheme,
@@ -52,32 +56,34 @@ function HomeScreen() {
       title="Pray together with peace, beauty, and daily rhythm."
       subtitle="A Catholic prayer home built around missions, groups, and the rhythm of the Church."
     >
-      <LinearGradient colors={['#F2F7F1', '#E4EFE4']} style={styles.heroCard}>
-        <View style={styles.heroBadge}>
-          <Text style={styles.heroBadgeText}>Today in the Church</Text>
-        </View>
-        <Text style={styles.heroTitle}>Feast of the Immaculate Heart of Mary</Text>
-        <Text style={styles.heroBody}>
-          Gather your family, parish, or friends around one prayer mission and stay rooted in the life of the Church each day.
-        </Text>
-
-        <View style={styles.quoteCard}>
-          <Text style={styles.quoteLabel}>Today’s reflection</Text>
-          <Text style={styles.quoteText}>
-            “The Rosary is the prayer that accompanies me always.”
+      <ImageBackground source={rosaryHero} imageStyle={styles.heroImage} style={styles.heroWrap}>
+        <LinearGradient colors={['rgba(16,28,18,0.18)', 'rgba(16,28,18,0.62)']} style={styles.heroOverlay}>
+          <View style={styles.heroBadgeDark}>
+            <Text style={styles.heroBadgeDarkText}>Today in the Church</Text>
+          </View>
+          <Text style={styles.heroTitleLight}>Feast of the Immaculate Heart of Mary</Text>
+          <Text style={styles.heroBodyLight}>
+            Gather your family, parish, or friends around one prayer mission and stay rooted in the life of the Church each day.
           </Text>
-          <Text style={styles.quoteAuthor}>— St. John Paul II</Text>
-        </View>
 
-        <View style={styles.heroButtonRow}>
-          <TouchableOpacity style={styles.primaryButton}>
-            <Text style={styles.primaryButtonText}>Join Mission</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.ghostButton}>
-            <Text style={styles.ghostButtonText}>Share</Text>
-          </TouchableOpacity>
-        </View>
-      </LinearGradient>
+          <View style={styles.quoteCardDark}>
+            <Text style={styles.quoteLabelLight}>Today’s reflection</Text>
+            <Text style={styles.quoteTextLight}>
+              “The Rosary is the prayer that accompanies me always.”
+            </Text>
+            <Text style={styles.quoteAuthorLight}>— St. John Paul II</Text>
+          </View>
+
+          <View style={styles.heroButtonRow}>
+            <TouchableOpacity style={styles.primaryButtonCream}>
+              <Text style={styles.primaryButtonCreamText}>Join Mission</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.ghostButtonDark}>
+              <Text style={styles.ghostButtonDarkText}>Share</Text>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+      </ImageBackground>
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
@@ -91,6 +97,16 @@ function HomeScreen() {
           </View>
         ))}
       </View>
+
+      <ImageBackground source={candleHero} imageStyle={styles.secondaryImage} style={styles.secondaryFeatureWrap}>
+        <LinearGradient colors={['rgba(250,252,249,0.88)', 'rgba(250,252,249,0.95)']} style={styles.secondaryFeatureOverlay}>
+          <Text style={styles.featureTitle}>Prayer atmosphere</Text>
+          <Text style={styles.featureValue}>A calmer, more sacred home experience</Text>
+          <Text style={styles.featureBody}>
+            Gentle visual atmosphere, living missions, and devotional cues make the app feel less like a utility and more like a prayer space.
+          </Text>
+        </LinearGradient>
+      </ImageBackground>
 
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
@@ -176,11 +192,13 @@ function TodayScreen() {
       title="Today in the Church"
       subtitle="Daily liturgical context, saints, feasts, and prayer prompts that keep people returning."
     >
-      <LinearGradient colors={['#F5F8F4', '#EAF2E8']} style={styles.featureCard}>
-        <Text style={styles.featureTitle}>Saint of the day</Text>
-        <Text style={styles.featureValue}>St. Irenaeus</Text>
-        <Text style={styles.featureBody}>Bishop, martyr, and defender of the faith. This screen should feel like a daily Catholic editorial brief, not a generic utility app.</Text>
-      </LinearGradient>
+      <ImageBackground source={stainedGlass} imageStyle={styles.featureImage} style={styles.featureImageWrap}>
+        <LinearGradient colors={['rgba(18,26,20,0.18)', 'rgba(18,26,20,0.58)']} style={styles.featureImageOverlay}>
+          <Text style={styles.featureTitleLight}>Saint of the day</Text>
+          <Text style={styles.featureValueLight}>St. Irenaeus</Text>
+          <Text style={styles.featureBodyLight}>Bishop, martyr, and defender of the faith — presented in a more editorial Catholic style.</Text>
+        </LinearGradient>
+      </ImageBackground>
 
       <View style={styles.softCard}> 
         <Text style={styles.cardLabel}>Feast / Memorial</Text>
@@ -200,11 +218,13 @@ function TodayScreen() {
         <Text style={styles.cardSupport}>A simple daily action that connects liturgical life with communal prayer practice.</Text>
       </View>
 
-      <View style={styles.softCard}>
-        <Text style={styles.cardLabel}>Coming next</Text>
-        <Text style={styles.cardValue}>Feasts, saints, novenas, and daily Catholic moments</Text>
-        <Text style={styles.cardSupport}>This screen will become the retention engine of the app.</Text>
-      </View>
+      <ImageBackground source={candleHero} imageStyle={styles.secondaryImage} style={styles.secondaryFeatureWrap}>
+        <LinearGradient colors={['rgba(250,252,249,0.88)', 'rgba(250,252,249,0.96)']} style={styles.secondaryFeatureOverlay}>
+          <Text style={styles.featureTitle}>Coming next</Text>
+          <Text style={styles.featureValue}>Feasts, saints, novenas, and daily Catholic moments</Text>
+          <Text style={styles.featureBody}>This screen is becoming the retention engine of the app.</Text>
+        </LinearGradient>
+      </ImageBackground>
     </ScreenShell>
   );
 }
@@ -317,61 +337,67 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  heroCard: {
+  heroWrap: {
     borderRadius: 30,
-    padding: 22,
-    borderWidth: 1,
-    borderColor: '#DCE8DC',
-    gap: 14,
+    overflow: 'hidden',
   },
-  heroBadge: {
+  heroImage: {
+    borderRadius: 30,
+  },
+  heroOverlay: {
+    padding: 22,
+    gap: 14,
+    minHeight: 420,
+    justifyContent: 'flex-end',
+  },
+  heroBadgeDark: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(86,122,90,0.10)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  heroBadgeText: {
-    color: '#567A5A',
+  heroBadgeDarkText: {
+    color: '#F7F7F2',
     fontSize: 12,
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  heroTitle: {
-    color: '#223127',
-    fontSize: 27,
-    lineHeight: 33,
+  heroTitleLight: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    lineHeight: 34,
     fontWeight: '800',
   },
-  heroBody: {
-    color: '#5F6E63',
+  heroBodyLight: {
+    color: 'rgba(255,255,255,0.88)',
     fontSize: 16,
     lineHeight: 24,
   },
-  quoteCard: {
-    backgroundColor: 'rgba(255,255,255,0.7)',
+  quoteCardDark: {
+    backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 24,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#E1EAE1',
+    borderColor: 'rgba(255,255,255,0.16)',
     gap: 6,
   },
-  quoteLabel: {
-    color: '#7A8B7D',
+  quoteLabelLight: {
+    color: 'rgba(255,255,255,0.76)',
     fontSize: 12,
     fontWeight: '700',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  quoteText: {
-    color: '#2B392E',
+  quoteTextLight: {
+    color: '#FFFFFF',
     fontSize: 18,
     lineHeight: 26,
     fontWeight: '700',
   },
-  quoteAuthor: {
-    color: '#6D7C70',
+  quoteAuthorLight: {
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -379,30 +405,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
-  primaryButton: {
+  primaryButtonCream: {
     flex: 1,
-    backgroundColor: '#567A5A',
+    backgroundColor: 'rgba(255,250,244,0.96)',
     borderRadius: 18,
     paddingVertical: 15,
     alignItems: 'center',
   },
-  primaryButtonText: {
-    color: '#FFFFFF',
+  primaryButtonCreamText: {
+    color: '#243126',
     fontSize: 15,
     fontWeight: '800',
   },
-  ghostButton: {
+  ghostButtonDark: {
     minWidth: 96,
-    backgroundColor: 'rgba(255,255,255,0.75)',
+    backgroundColor: 'rgba(255,255,255,0.14)',
     borderRadius: 18,
     paddingVertical: 15,
     paddingHorizontal: 18,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#DDE8DD',
+    borderColor: 'rgba(255,255,255,0.16)',
   },
-  ghostButtonText: {
-    color: '#49664D',
+  ghostButtonDarkText: {
+    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
   },
@@ -454,6 +480,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginTop: 4,
+  },
+  secondaryFeatureWrap: {
+    borderRadius: 28,
+    overflow: 'hidden',
+    minHeight: 220,
+  },
+  secondaryImage: {
+    borderRadius: 28,
+  },
+  secondaryFeatureOverlay: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'flex-end',
+    gap: 8,
   },
   missionCard: {
     backgroundColor: '#FFFFFF',
@@ -578,6 +618,38 @@ const styles = StyleSheet.create({
   },
   featureBody: {
     color: '#5F6E63',
+    fontSize: 15,
+    lineHeight: 22,
+  },
+  featureImageWrap: {
+    borderRadius: 28,
+    overflow: 'hidden',
+    minHeight: 280,
+  },
+  featureImage: {
+    borderRadius: 28,
+  },
+  featureImageOverlay: {
+    flex: 1,
+    padding: 20,
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  featureTitleLight: {
+    color: 'rgba(255,255,255,0.84)',
+    fontSize: 13,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  featureValueLight: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: '800',
+  },
+  featureBodyLight: {
+    color: 'rgba(255,255,255,0.88)',
     fontSize: 15,
     lineHeight: 22,
   },
