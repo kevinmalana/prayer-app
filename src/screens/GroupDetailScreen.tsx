@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Share, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { ScreenShell } from '../components/ScreenShell';
 import { SectionCard } from '../components/SectionCard';
 import { colors } from '../theme/colors';
@@ -81,6 +81,7 @@ export function GroupDetailScreen({ route, navigation }: any) {
   const [editingIntention, setEditingIntention] = useState(false);
   const [intentionDraft, setIntentionDraft] = useState('');
   const [savingIntention, setSavingIntention] = useState(false);
+  const [sharingGroup, setSharingGroup] = useState(false);
 
   const [messageDraft, setMessageDraft] = useState('');
   const [savingMessage, setSavingMessage] = useState(false);
@@ -244,6 +245,23 @@ export function GroupDetailScreen({ route, navigation }: any) {
       loadTestimonies();
     }
   }, [groupId, loadTestimonies]);
+
+  const handleShareGroup = async () => {
+    if (!group) return;
+
+    setSharingGroup(true);
+    try {
+      const message = `Join my prayer group on One in Prayer. Group: ${group.name}. Group ID: ${group.id}`;
+      await Share.share({
+        message,
+        title: `Invite to ${group.name}`,
+      });
+    } catch (error: any) {
+      Alert.alert('Share failed', error?.message ?? 'Could not open sharing.');
+    } finally {
+      setSharingGroup(false);
+    }
+  };
 
   const handleSaveIntention = async () => {
     if (!group) return;
@@ -433,7 +451,16 @@ export function GroupDetailScreen({ route, navigation }: any) {
             label={`${group.type} · ${group.visibility === 'private' ? 'Private' : 'Public'}`}
             title={group.name}
             support={group.description || 'No description yet.'}
-          />
+          >
+            <View style={styles.inlineRow}>
+              <TouchableOpacity style={styles.secondaryButton} onPress={handleShareGroup} disabled={sharingGroup}>
+                <Text style={styles.secondaryButtonText}>{sharingGroup ? 'Opening…' : 'Share group'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('JoinGroup')}>
+                <Text style={styles.primaryButtonText}>Invite flow</Text>
+              </TouchableOpacity>
+            </View>
+          </SectionCard>
 
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
@@ -515,7 +542,7 @@ export function GroupDetailScreen({ route, navigation }: any) {
               key={message.id}
               label={`Message ${messages.length - index}`}
               title={message.body}
-              support={message.user_id}
+              support={`Member · ${new Date(message.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`}
             />
           ))}
 
@@ -729,7 +756,11 @@ export function GroupDetailScreen({ route, navigation }: any) {
             label="Share this group"
             title={group.id}
             support="Share this ID with others so they can join using the Join Group screen."
-          />
+          >
+            <TouchableOpacity style={styles.secondaryButton} onPress={handleShareGroup} disabled={sharingGroup}>
+              <Text style={styles.secondaryButtonText}>{sharingGroup ? 'Opening…' : 'Share to WhatsApp or another app'}</Text>
+            </TouchableOpacity>
+          </SectionCard>
         </>
       ) : !loading ? (
         <SectionCard
