@@ -10,6 +10,7 @@ interface PrayerRequestRow {
   title: string;
   body: string;
   is_answered: boolean;
+  visibility: 'group' | 'public';
 }
 
 export function PrayerRequestsScreen({ navigation }: any) {
@@ -22,7 +23,7 @@ export function PrayerRequestsScreen({ navigation }: any) {
   const loadRequests = async () => {
     const { data } = await supabase
       .from('prayer_requests')
-      .select('id,title,body,is_answered')
+      .select('id,title,body,is_answered,visibility')
       .order('created_at', { ascending: false })
       .limit(20);
 
@@ -56,6 +57,7 @@ export function PrayerRequestsScreen({ navigation }: any) {
         title,
         body,
         user_id: user.id,
+        visibility: 'group',
       });
 
       if (error) throw error;
@@ -101,7 +103,7 @@ export function PrayerRequestsScreen({ navigation }: any) {
       {items.map((item) => (
         <SectionCard
           key={item.id}
-          label={item.is_answered ? 'Answered prayer' : 'Prayer request'}
+          label={item.is_answered ? 'Answered prayer' : item.visibility === 'public' ? 'Public prayer request' : 'Group prayer request'}
           title={item.title}
           support={item.body}
         />

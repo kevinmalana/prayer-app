@@ -8,6 +8,7 @@ export function CreateMissionScreen({ navigation }: any) {
   const [title, setTitle] = useState('');
   const [intention, setIntention] = useState('');
   const [target, setTarget] = useState('1000');
+  const [goalUnit, setGoalUnit] = useState<'hail_mary' | 'decade' | 'rosary'>('hail_mary');
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async () => {
@@ -31,7 +32,8 @@ export function CreateMissionScreen({ navigation }: any) {
       const { error } = await supabase.from('missions').insert({
         title,
         intention: intention || null,
-        prayer_type: 'hail_mary',
+        prayer_type: goalUnit === 'rosary' ? 'rosary' : 'hail_mary',
+        goal_unit: goalUnit,
         target_count: Number(target) || 1000,
         creator_id: user.id,
       });
@@ -76,6 +78,17 @@ export function CreateMissionScreen({ navigation }: any) {
           onChangeText={setTarget}
           keyboardType="number-pad"
         />
+        <View style={styles.toggleRow}>
+          <TouchableOpacity style={[styles.toggleButton, goalUnit === 'hail_mary' && styles.toggleButtonActive]} onPress={() => setGoalUnit('hail_mary')}>
+            <Text style={[styles.toggleText, goalUnit === 'hail_mary' && styles.toggleTextActive]}>Hail Marys</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.toggleButton, goalUnit === 'decade' && styles.toggleButtonActive]} onPress={() => setGoalUnit('decade')}>
+            <Text style={[styles.toggleText, goalUnit === 'decade' && styles.toggleTextActive]}>Decades</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.toggleButton, goalUnit === 'rosary' && styles.toggleButtonActive]} onPress={() => setGoalUnit('rosary')}>
+            <Text style={[styles.toggleText, goalUnit === 'rosary' && styles.toggleTextActive]}>Rosaries</Text>
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity style={styles.primaryButton} onPress={handleCreate} disabled={loading}>
           <Text style={styles.primaryButtonText}>{loading ? 'Creating...' : 'Create prayer goal'}</Text>
@@ -107,6 +120,31 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 120,
     textAlignVertical: 'top',
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  toggleButton: {
+    flex: 1,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: '#F5F8F4',
+  },
+  toggleButtonActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  toggleText: {
+    color: colors.text,
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  toggleTextActive: {
+    color: '#FFFFFF',
   },
   primaryButton: {
     backgroundColor: colors.primary,

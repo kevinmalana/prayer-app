@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 export function CreateGroupScreen({ navigation }: any) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [visibility, setVisibility] = useState<'private' | 'public'>('private');
   const [loading, setLoading] = useState(false);
 
   const handleCreate = async () => {
@@ -31,7 +32,9 @@ export function CreateGroupScreen({ navigation }: any) {
         name,
         description: description || null,
         type: 'family',
-        is_private: true,
+        is_private: visibility === 'private',
+        visibility,
+        join_mode: visibility === 'private' ? 'invite' : 'open',
         owner_id: user.id,
       });
 
@@ -67,6 +70,20 @@ export function CreateGroupScreen({ navigation }: any) {
           onChangeText={setDescription}
           multiline
         />
+        <View style={styles.toggleRow}>
+          <TouchableOpacity
+            style={[styles.toggleButton, visibility === 'private' && styles.toggleButtonActive]}
+            onPress={() => setVisibility('private')}
+          >
+            <Text style={[styles.toggleText, visibility === 'private' && styles.toggleTextActive]}>Private</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.toggleButton, visibility === 'public' && styles.toggleButtonActive]}
+            onPress={() => setVisibility('public')}
+          >
+            <Text style={[styles.toggleText, visibility === 'public' && styles.toggleTextActive]}>Public</Text>
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity style={styles.primaryButton} onPress={handleCreate} disabled={loading}>
           <Text style={styles.primaryButtonText}>{loading ? 'Creating...' : 'Create group'}</Text>
         </TouchableOpacity>
@@ -97,6 +114,30 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 120,
     textAlignVertical: 'top',
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  toggleButton: {
+    flex: 1,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: '#F5F8F4',
+  },
+  toggleButtonActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  toggleText: {
+    color: colors.text,
+    fontWeight: '700',
+  },
+  toggleTextActive: {
+    color: '#FFFFFF',
   },
   primaryButton: {
     backgroundColor: colors.primary,

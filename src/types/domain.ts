@@ -1,5 +1,8 @@
 export type PrayerGroupType = 'family' | 'parish' | 'youth' | 'friends' | 'ministry';
+export type PrayerGroupVisibility = 'private' | 'public';
+export type PrayerJoinMode = 'invite' | 'approval' | 'open';
 export type PrayerMissionType = 'hail_mary' | 'rosary' | 'novena' | 'our_father' | 'custom';
+export type PrayerGoalUnit = 'hail_mary' | 'decade' | 'rosary';
 
 export interface Profile {
   id: string;
@@ -14,6 +17,8 @@ export interface PrayerGroup {
   description: string | null;
   type: PrayerGroupType;
   is_private: boolean;
+  visibility: PrayerGroupVisibility;
+  join_mode: PrayerJoinMode;
   owner_id: string;
   created_at: string;
 }
@@ -25,6 +30,7 @@ export interface Mission {
   prayer_type: PrayerMissionType;
   target_count: number;
   current_count: number;
+  goal_unit: PrayerGoalUnit;
   deadline_at: string | null;
   group_id: string | null;
   creator_id: string;
@@ -38,5 +44,6 @@ export interface PrayerRequest {
   user_id: string;
   group_id: string | null;
   is_answered: boolean;
+  visibility: 'group' | 'public';
   created_at: string;
 }
