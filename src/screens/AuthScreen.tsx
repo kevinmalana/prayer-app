@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { ScreenShell } from '../components/ScreenShell';
 import { colors } from '../theme/colors';
-import { supabase } from '../lib/supabase';
+import { supabase, supabaseConfigDebug } from '../lib/supabase';
 import { DEV_BYPASS_ENABLED } from '../lib/devSession';
 
 async function ensureProfile(userId: string, fullName: string | null) {
@@ -81,6 +81,12 @@ export function AuthScreen() {
             <Text style={styles.devNoticeText}>Dev bypass is enabled. The app will treat you as signed in for testing.</Text>
           </View>
         ) : null}
+
+        <View style={styles.devNotice}>
+          <Text style={styles.devNoticeText}>
+            Runtime config → URL: {supabaseConfigDebug.urlHost} · key: {supabaseConfigDebug.anonKeyPrefix}...
+          </Text>
+        </View>
 
         {mode === 'sign_up' ? (
           <TextInput
