@@ -477,6 +477,26 @@ export function GroupDetailScreen({ route, navigation }: any) {
             </View>
           </View>
 
+          {memberCount <= 1 && groupMissions.length === 0 && requests.length === 0 && messages.length === 0 ? (
+            <SectionCard
+              label="Get this group moving"
+              title="Your group is ready — now give it life"
+              support="Set the shared intention, invite one person, post the first message, and create the first group prayer goal."
+            >
+              <View style={styles.quickActionStack}>
+                <TouchableOpacity style={styles.primaryButton} onPress={() => setEditingIntention(true)}>
+                  <Text style={styles.primaryButtonText}>Set intention</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('CreateMission', { groupId: group.id })}>
+                  <Text style={styles.secondaryButtonText}>Create first goal</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.secondaryButton} onPress={handleShareGroup}>
+                  <Text style={styles.secondaryButtonText}>Invite via WhatsApp</Text>
+                </TouchableOpacity>
+              </View>
+            </SectionCard>
+          ) : null}
+
           <SectionCard
             label="Group intention"
             title={group.current_intention || 'No active group intention'}
@@ -503,9 +523,24 @@ export function GroupDetailScreen({ route, navigation }: any) {
               </View>
             ) : (
               <TouchableOpacity style={styles.secondaryButton} onPress={() => setEditingIntention(true)}>
-                <Text style={styles.secondaryButtonText}>{group.current_intention ? 'Edit intention' : 'Set intention'}</Text>
+                 <Text style={styles.secondaryButtonText}>{group.current_intention ? 'Edit intention' : 'Set intention'}</Text>
+               </TouchableOpacity>
+             )}
+           </SectionCard>
+
+          <SectionCard
+            label="Invite"
+            title="Bring your prayer group in"
+            support="Share this group with family, parish, or ministry members so the group becomes active."
+          >
+            <View style={styles.inlineRow}>
+              <TouchableOpacity style={styles.primaryButton} onPress={handleShareGroup} disabled={sharingGroup}>
+                <Text style={styles.primaryButtonText}>{sharingGroup ? 'Opening…' : 'Share to WhatsApp'}</Text>
               </TouchableOpacity>
-            )}
+              <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate('JoinGroup')}>
+                <Text style={styles.secondaryButtonText}>Use group ID</Text>
+              </TouchableOpacity>
+            </View>
           </SectionCard>
 
           <View style={styles.sectionHeader}>
@@ -837,6 +872,10 @@ const styles = StyleSheet.create({
   inlineRow: {
     flexDirection: 'row',
     gap: 10,
+  },
+  quickActionStack: {
+    gap: 10,
+    marginTop: 12,
   },
   input: {
     backgroundColor: '#F5F8F4',
