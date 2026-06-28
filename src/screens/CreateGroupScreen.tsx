@@ -1,0 +1,112 @@
+import { useState } from 'react';
+import { Alert, StyleSheet, TextInput, TouchableOpacity, View, Text } from 'react-native';
+import { ScreenShell } from '../components/ScreenShell';
+import { colors } from '../theme/colors';
+import { supabase } from '../lib/supabase';
+
+export function CreateGroupScreen({ navigation }: any) {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleCreate = async () => {
+    if (!name.trim()) {
+      Alert.alert('Missing name', 'Please enter a group name.');
+      return;
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    const user = sessionData.session?.user;
+
+    if (!user) {
+      Alert.alert('Sign in required', 'Please create an account or sign in first.');
+      navigation.navigate('Auth');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.from('prayer_groups').insert({
+        name,
+        description: description || null,
+        type: 'family',
+        is_private: true,
+        owner_id: user.id,
+      });
+
+      if (error) throw error;
+
+      Alert.alert('Group created', 'Your prayer group has been created.');
+      navigation.goBack();
+    } catch (error: any) {
+      Alert.alert('Create failed', error.message ?? 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <ScreenShell
+      title="Create Group"
+      subtitle="Start a family, parish, youth, or ministry prayer space."
+    >
+      <View style={styles.card}>
+        <TextInput
+          style={styles.input}
+          placeholder="Group name"
+          placeholderTextColor="#94A39A"
+          value={name}
+          onChangeText={setName}
+        />
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder="Description"
+          placeholderTextColor="#94A39A"
+          value={description}
+          onChangeText={setDescription}
+          multiline
+        />
+        <TouchableOpacity style={styles.primaryButton} onPress={handleCreate} disabled={loading}>
+          <Text style={styles.primaryButtonText}>{loading ? 'Creating...' : 'Create group'}</Text>
+        </TouchableOpacity>
+      </View>
+    </ScreenShell>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: colors.card,
+    borderRadius: 24,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: colors.borderSoft,
+    gap: 14,
+  },
+  input: {
+    backgroundColor: '#F5F8F4',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: colors.border,
+    color: colors.text,
+    fontSize: 16,
+  },
+  textArea: {
+    minHeight: 120,
+    textAlignVertical: 'top',
+  },
+  primaryButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 18,
+    paddingVertical: 15,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '800',
+  },
+});
